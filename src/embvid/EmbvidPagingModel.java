@@ -63,7 +63,7 @@ import org.xml.sax.SAXException;
 import com.ebay.sdk.util.XmlUtil;
 import com.mysql.jdbc.ResultSetMetaData;
 
-class PagingModel extends AbstractTableModel {
+class EmbvidPagingModel extends AbstractTableModel {
 	
 	public Class<String> getColumnClass(int columnIndex) {
 		return String.class;
@@ -90,11 +90,11 @@ class PagingModel extends AbstractTableModel {
   String db_user;
   String db_pass;
   
-  public PagingModel() {
+  public EmbvidPagingModel() {
     this(20);
   }
 
-  public PagingModel(int size) {
+  public EmbvidPagingModel(int size) {
 	
 	  pageSize = size;
 	  data = new dbRecord();
@@ -184,12 +184,12 @@ class PagingModel extends AbstractTableModel {
     TableModel tmodel = jt.getModel();
 
     // Don't choke if this is called on a regular table . . .
-    if (!(tmodel instanceof PagingModel)) {
+    if (!(tmodel instanceof EmbvidPagingModel)) {
       return jsp;
     }
 
     // Okay, go ahead and build the real scrollpane
-    final PagingModel model = (PagingModel) tmodel;
+    final EmbvidPagingModel model = (EmbvidPagingModel) tmodel;
     final JButton upButton = new JButton(new ArrowIcon(ArrowIcon.UP));
     upButton.setEnabled(false); // starts off at 0, so can't go up
     final JButton downButton = new JButton(new ArrowIcon(ArrowIcon.DOWN));

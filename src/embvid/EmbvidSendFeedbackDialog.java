@@ -38,7 +38,7 @@ import com.ebay.sdk.ApiContext;
 import com.ebay.sdk.SdkException;
 import com.ebay.sdk.call.AddToItemDescriptionCall;
 
-public class DialogSendFeedback extends JDialog {
+public class EmbvidSendFeedbackDialog extends JDialog {
   /**
 	 * 
 	 */
@@ -64,12 +64,12 @@ private ApiContext apiContext = new ApiContext();
   BorderLayout borderLayout3 = new BorderLayout();
   JScrollPane jScrollPane1 = new JScrollPane();
 
-  public DialogSendFeedback(Frame frame, String title, boolean modal) {
+  public EmbvidSendFeedbackDialog(Frame frame, String title, boolean modal) {
     super(frame, title, modal);
     try {
       jbInit();
 
-      FrameDemo fd = (FrameDemo)frame;
+      EmbvidFrame fd = (EmbvidFrame)frame;
       this.apiContext = fd.getApiContext();
     }
     catch(Exception ex) {
@@ -77,7 +77,7 @@ private ApiContext apiContext = new ApiContext();
     }
   }
 
-  public DialogSendFeedback() {
+  public EmbvidSendFeedbackDialog() {
     this(null, "", false);
   }
 
@@ -85,7 +85,7 @@ private ApiContext apiContext = new ApiContext();
     panel1.setLayout(borderLayout1);
     jPanel1.setLayout(borderLayout2);
     btnCallAddToItemDescription.setText("AddToItemDescription");
-    btnCallAddToItemDescription.addActionListener(new DialogSendFeedback_btnCallAddToItemDescription_actionAdapter(this));
+    btnCallAddToItemDescription.addActionListener(new EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(this));
     jLabel1.setPreferredSize(new Dimension(60, 15));
     jLabel1.setText("Item ID");
     jLabel2.setPreferredSize(new Dimension(60, 15));
@@ -133,20 +133,20 @@ private ApiContext apiContext = new ApiContext();
 
       api.addToItemDescription();
 
-      ((FrameDemo)this.getParent()).showInfoMessage("The description has been appended successfully.");
+      ((EmbvidFrame)this.getParent()).showInfoMessage("The description has been appended successfully.");
     }
     catch(Exception ex)
     {
       String msg = ex.getClass().getName() + " : " + ex.getMessage();
-      ((FrameDemo)this.getParent()).showErrorMessage(msg);
+      ((EmbvidFrame)this.getParent()).showErrorMessage(msg);
     }
   }
 }
 
-class DialogSendFeedback_btnCallAddToItemDescription_actionAdapter implements java.awt.event.ActionListener {
-	DialogSendFeedback adaptee;
+class EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidSendFeedbackDialog adaptee;
 
-	DialogSendFeedback_btnCallAddToItemDescription_actionAdapter(DialogSendFeedback adaptee) {
+	EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(EmbvidSendFeedbackDialog adaptee) {
     this.adaptee = adaptee;
   }
   public void actionPerformed(ActionEvent e) {

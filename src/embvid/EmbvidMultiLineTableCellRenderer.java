@@ -38,7 +38,7 @@ import javax.swing.table.TableCellRenderer;
 /**
    * Multiline Table Cell Renderer.
    */
-  public class MultiLineTableCellRenderer extends JTextArea 
+  public class EmbvidMultiLineTableCellRenderer extends JTextArea 
     implements TableCellRenderer, TableCellEditor {
     /**
 	 * 
@@ -46,7 +46,7 @@ import javax.swing.table.TableCellRenderer;
 	private static final long serialVersionUID = 3045173042398525063L;
 	private List<List<Integer>> rowColHeight = new ArrayList<List<Integer>>();
     
-    public MultiLineTableCellRenderer() {
+    public EmbvidMultiLineTableCellRenderer() {
       setLineWrap(true);
       setWrapStyleWord(true);
       setOpaque(true);

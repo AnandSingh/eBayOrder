@@ -147,7 +147,7 @@ import javax.activation.*;
  * @version 1.0
  */
 
-public class FrameDemo extends JFrame implements KeyListener, ListSelectionListener, MouseListener
+public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionListener, MouseListener
 {
 	/**
 	 * 
@@ -267,7 +267,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 	TitledBorder titledBorder3;
 
 	//Construct the frameemaiul
-	public FrameDemo() {
+	public EmbvidFrame() {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
 			jbInit();
@@ -299,7 +299,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 			this.loadConfiguration();
 
 			// Add listener for token renewal event.
-			apiContext.getApiCredential().addTokenEventListener(new DemoTokenEventListener(this));
+			apiContext.getApiCredential().addTokenEventListener(new EmbvidTokenEventListener(this));
 			customInit();
 
 
@@ -415,14 +415,14 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 		setTitle("EmbVid eBay Application");
 		jMenuFile.setText("File");
 		jMenuFileExit.setText("Exit");
-		jMenuFileExit.addActionListener(new FrameDemo_jMenuFileExit_ActionAdapter(this));
+		jMenuFileExit.addActionListener(new Frame_jMenuFileExit_ActionAdapter(this));
 		jMenuHelp.setText("Help");
 		jMenuHelpAbout.setText("About");
-		jMenuHelpAbout.addActionListener(new FrameDemo_jMenuHelpAbout_ActionAdapter(this));
+		jMenuHelpAbout.addActionListener(new Frame_jMenuHelpAbout_ActionAdapter(this));
 		jMenuItemAccount.setRolloverEnabled(false);
 		jMenuItemAccount.setText("Account");
 		jMenuItemAccount.addActionListener(new
-				FrameDemo_jMenuItemAccount_actionAdapter(this));
+				Frame_jMenuItemAccount_actionAdapter(this));
 
 		jPanel1.setLayout(gridLayout1);
 		gridLayout1.setColumns(1);
@@ -453,7 +453,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 		jPanel1.setLayout(borderLayout2);
 
 		btnGetOrders.setText("Get Orders");
-		btnGetOrders.addActionListener(new FrameDemo_btnGetOrders_actionAdapter(this));
+		btnGetOrders.addActionListener(new Frame_btnGetOrders_actionAdapter(this));
 		jPanel2.setLayout(borderLayout4);
 		jPanel7.setLayout(gridBagLayout1);
 		jLabel1.setText("Select Date");
@@ -522,7 +522,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 			jBtnUpdate = new JButton();
 			jPanel16.add(jBtnUpdate);
 			jBtnUpdate.setText("Update Tracking");
-			jBtnUpdate.addActionListener(new FrameDemo_btnUpdate_actionAdapter(this));
+			jBtnUpdate.addActionListener(new Frame_btnUpdate_actionAdapter(this));
 		}
 		{
 			jLabel4 = new JLabel();
@@ -533,7 +533,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 			jBtnFeebback = new JButton();
 			jPanel16.add(jBtnFeebback);
 			jBtnFeebback.setText("Update Feedback");
-			jBtnFeebback.addActionListener(new FrameDemo_btnFeedback_actionAdapter(this));
+			jBtnFeebback.addActionListener(new Frame_btnFeedback_actionAdapter(this));
 		}
 		jPanel0.add(jPanel11, BorderLayout.WEST);
 		jPanel0.add(jPanel12, BorderLayout.EAST);
@@ -550,7 +550,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 			jButtonMail = new JButton();
 			jPanel7.add(jButtonMail, new GridBagConstraints(2, 8, 1, 2, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 			jButtonMail.setText("eMail Order");
-			jButtonMail.addActionListener(new FrameDemo_btnSendMail_actionAdapter(this));
+			jButtonMail.addActionListener(new Frame_btnSendMail_actionAdapter(this));
 		}
 		{
 			jLabel3 = new JLabel();
@@ -618,7 +618,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 
 	//Help | About action performed
 	public void jMenuHelpAbout_actionPerformed(ActionEvent e) {
-		FrameDemo_AboutBox dlg = new FrameDemo_AboutBox(this);
+		EmbvidAboutBox dlg = new EmbvidAboutBox(this);
 		Dimension dlgSize = dlg.getPreferredSize();
 		Dimension frmSize = getSize();
 		Point loc = getLocation();
@@ -942,7 +942,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 	{
 		
 			
-		 RowFilter<PagingModel, Object> rowFilter = new RowFilter<PagingModel, Object>() {
+		 RowFilter<EmbvidPagingModel, Object> rowFilter = new RowFilter<EmbvidPagingModel, Object>() {
 			   public boolean include(Entry entry) {
 				 String orderstatus = (String) entry.getValue(0);
 			    
@@ -957,17 +957,17 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 			 
 			
 		
-		PagingModel pm = new PagingModel();
+		EmbvidPagingModel pm = new EmbvidPagingModel();
 		JTable jt = new JTable(pm);
 		
 		
-		TableRowSorter<PagingModel> sorter = new TableRowSorter<PagingModel>(pm);
+		TableRowSorter<EmbvidPagingModel> sorter = new TableRowSorter<EmbvidPagingModel>(pm);
 	    sorter.setRowFilter(rowFilter);
 	    jt.setRowSorter(sorter);
 
-		jt.setDefaultRenderer(String.class, new MultiLineTableCellRenderer());
+		jt.setDefaultRenderer(String.class, new EmbvidMultiLineTableCellRenderer());
 		this.jScrollPane1.setEnabled(false);
-		this.jScrollPane1.getViewport().add(PagingModel.createPagingScrollPaneForTable(jt), null);
+		this.jScrollPane1.getViewport().add(EmbvidPagingModel.createPagingScrollPaneForTable(jt), null);
 		this.jScrollPane1.getViewport().setOpaque(true);
 		this.jScrollPane1.getViewport().setVisible(true);
 		this.setVisible(true);
@@ -1436,7 +1436,7 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 		}
 		catch (Exception ex) {
 			System.out.println(ex.getMessage());
-			//( (FrameDemo) ((FrameDemo) obj).getParent()).showErrorMessage(ex.getMessage());
+			
 			JOptionPane.showMessageDialog(null, "Exception: "+ex.getMessage().toString(), "ERROR !!", JOptionPane.INFORMATION_MESSAGE);	
 		}
 		finally {
@@ -1831,10 +1831,10 @@ public class FrameDemo extends JFrame implements KeyListener, ListSelectionListe
 
 
 //Classes to handle the menu selection/button press events.
-class FrameDemo_jMenuFileExit_ActionAdapter implements ActionListener {
-	FrameDemo adaptee;
+class Frame_jMenuFileExit_ActionAdapter implements ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_jMenuFileExit_ActionAdapter(FrameDemo adaptee) {
+	Frame_jMenuFileExit_ActionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
@@ -1842,10 +1842,10 @@ class FrameDemo_jMenuFileExit_ActionAdapter implements ActionListener {
 	}
 }
 
-class FrameDemo_jMenuHelpAbout_ActionAdapter implements ActionListener {
-	FrameDemo adaptee;
+class Frame_jMenuHelpAbout_ActionAdapter implements ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_jMenuHelpAbout_ActionAdapter(FrameDemo adaptee) {
+	Frame_jMenuHelpAbout_ActionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
@@ -1853,10 +1853,10 @@ class FrameDemo_jMenuHelpAbout_ActionAdapter implements ActionListener {
 	}
 }
 
-class FrameDemo_jMenuItemAccount_actionAdapter implements java.awt.event.ActionListener {
-	FrameDemo adaptee;
+class Frame_jMenuItemAccount_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_jMenuItemAccount_actionAdapter(FrameDemo adaptee) {
+	Frame_jMenuItemAccount_actionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
@@ -1864,20 +1864,20 @@ class FrameDemo_jMenuItemAccount_actionAdapter implements java.awt.event.ActionL
 	}
 }
 
-class FrameDemo_btnSendMail_actionAdapter implements java.awt.event.ActionListener {
-	FrameDemo adaptee;
+class Frame_btnSendMail_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_btnSendMail_actionAdapter(FrameDemo adaptee) {
+	Frame_btnSendMail_actionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
 		adaptee.btnSendMail_actionPerformed(e);
 	}
 }
-class FrameDemo_btnGetOrders_actionAdapter implements java.awt.event.ActionListener {
-	FrameDemo adaptee;
+class Frame_btnGetOrders_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_btnGetOrders_actionAdapter(FrameDemo adaptee) {
+	Frame_btnGetOrders_actionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
@@ -1885,10 +1885,10 @@ class FrameDemo_btnGetOrders_actionAdapter implements java.awt.event.ActionListe
 	}
 }
 
-class FrameDemo_btnUpdate_actionAdapter implements java.awt.event.ActionListener {
-	FrameDemo adaptee;
+class Frame_btnUpdate_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_btnUpdate_actionAdapter(FrameDemo adaptee) {
+	Frame_btnUpdate_actionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {
@@ -1897,10 +1897,10 @@ class FrameDemo_btnUpdate_actionAdapter implements java.awt.event.ActionListener
 }
 
 
-class FrameDemo_btnFeedback_actionAdapter implements java.awt.event.ActionListener {
-	FrameDemo adaptee;
+class Frame_btnFeedback_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
 
-	FrameDemo_btnFeedback_actionAdapter(FrameDemo adaptee) {
+	Frame_btnFeedback_actionAdapter(EmbvidFrame adaptee) {
 		this.adaptee = adaptee;
 	}
 	public void actionPerformed(ActionEvent e) {

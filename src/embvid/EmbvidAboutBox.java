@@ -33,7 +33,7 @@ import javax.swing.JPanel;
  * @version 1.0
  */
 
-public class FrameDemo_AboutBox extends JDialog implements ActionListener {
+public class EmbvidAboutBox extends JDialog implements ActionListener {
 
   /**
 	 * 
@@ -59,7 +59,7 @@ JPanel panel1 = new JPanel();
   String version = "1.0";
   String copyright = "Copyright (c) 2013";
   String comments = "";
-  public FrameDemo_AboutBox(Frame parent) {
+  public EmbvidAboutBox(Frame parent) {
     super(parent);
     enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {

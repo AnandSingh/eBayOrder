@@ -31,11 +31,11 @@ import com.ebay.sdk.helper.ui.GuiUtil;
  *  
  * @author boyang
  */
-public class embvid {
+public class Embvid {
 	boolean packFrame = false;
 	  //Construct the application
-	  public embvid() {
-	    FrameDemo frame = new FrameDemo();
+	  public Embvid() {
+	    EmbvidFrame frame = new EmbvidFrame();
 	    //Validate frames that have preset sizes
 	    //Pack frames that have useful preferred size info, e.g. from their layout
 	    if (packFrame) {
@@ -64,6 +64,6 @@ public class embvid {
 		    catch(Exception e) {
 		      e.printStackTrace();
 		    }
-		    new embvid();
+		    new Embvid();
 	}
 }

@@ -24,11 +24,11 @@ package embvid;
 import com.ebay.sdk.TokenEventListener;
 import com.ebay.sdk.util.eBayUtil;
  
-public class DemoTokenEventListener implements TokenEventListener {
+public class EmbvidTokenEventListener implements TokenEventListener {
 
-  FrameDemo mainFrame;
+	EmbvidFrame mainFrame;
 
-  public DemoTokenEventListener(FrameDemo mainFrame) {
+  public EmbvidTokenEventListener(EmbvidFrame mainFrame) {
     this.mainFrame = mainFrame;
   }
 
