@@ -4,3 +4,7 @@
 *.html
 *.log
 *.classpath
+# Package Files #
+*.jar
+*.war
+*.ear
