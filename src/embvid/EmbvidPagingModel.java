@@ -250,8 +250,9 @@ static String[] headers = {
 							"BuyerID" ,   //  4 - 6
 							//"BuyerEmail" , //  - 7
 							"ShipAddress" ,  // 5 - 8
-							"ShippingStatus" , // 6 - 9
-							"Feedback"  };  //7 - 10
+							"ShippingStatus" // 6 - 9
+							//,"Feedback" 
+							};  //7 - 10
 static int counter;
 
 Connection con;

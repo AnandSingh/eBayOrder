@@ -51,10 +51,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Properties;
+import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.prefs.Preferences;
 
@@ -88,6 +90,8 @@ import javax.xml.transform.TransformerException;
 
 
 
+
+
 import com.ebay.sdk.ApiAccount;
 import com.ebay.sdk.ApiContext;
 import com.ebay.sdk.ApiCredential;
@@ -96,6 +100,7 @@ import com.ebay.sdk.call.CompleteSaleCall;
 import com.ebay.sdk.call.GetOrdersCall;
 import com.ebay.sdk.call.LeaveFeedbackCall;
 import com.ebay.sdk.helper.ShippingServiceHelper;
+import com.ebay.sdk.helper.ui.ControlEntryTypes;
 import com.ebay.sdk.helper.ui.ControlTagItem;
 import com.ebay.sdk.helper.ui.DialogAccount;
 import com.ebay.sdk.helper.ui.GuiUtil;
@@ -117,6 +122,7 @@ import com.ebay.soap.eBLBaseComponents.CommentTypeCodeType;
 import com.ebay.soap.eBLBaseComponents.CompleteStatusCodeType;
 import com.ebay.soap.eBLBaseComponents.DetailLevelCodeType;
 import com.ebay.soap.eBLBaseComponents.FeedbackDetailType;
+import com.ebay.soap.eBLBaseComponents.OrderIDArrayType;
 import com.ebay.soap.eBLBaseComponents.OrderStatusCodeType;
 import com.ebay.soap.eBLBaseComponents.OrderType;
 import com.ebay.soap.eBLBaseComponents.PaginationType;
@@ -135,6 +141,7 @@ import com.ebay.soap.eBLBaseComponents.TransactionType;
 import javax.mail.*;
 import javax.mail.internet.*;
 import javax.activation.*;
+
 
 
 
@@ -174,11 +181,11 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 	private static final int BUYER_ID = 4;
 	private static final int SHIP_ADDR = 5;
 	private static final int TRACK = 6;
+	private JTextField jTextField_shipCount;
 	private JLabel jLabel10;
 	private JLabel jLabel9;
-	private JTextField jTextField2;
+	private JTextField jTextField_feedback;
 	private JLabel jLabel8;
-	private JTextField jTextField1;
 	private JLabel jLabel1;
 	private JTextField jTextField_FromTime;
 	private JLabel jLabel7;
@@ -589,21 +596,15 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 			jLabel1.setText("Total Items need to Shipped");
 		}
 		{
-			jTextField1 = new JTextField();
-			jPanel7.add(jTextField1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-			jTextField1.setText("         ");
-			jTextField1.setPreferredSize(new java.awt.Dimension(42, 22));
-		}
-		{
 			jLabel8 = new JLabel();
 			jPanel7.add(jLabel8, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 			jLabel8.setText("Total Feedback need to sent");
 		}
 		{
-			jTextField2 = new JTextField();
-			jPanel7.add(jTextField2, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-			jTextField2.setText("         ");
-			jTextField2.setPreferredSize(new java.awt.Dimension(42, 22));
+			jTextField_feedback = new JTextField();
+			jPanel7.add(jTextField_feedback, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jTextField_feedback.setText("         ");
+			jTextField_feedback.setPreferredSize(new java.awt.Dimension(34, 22));
 		}
 		{
 			jLabel9 = new JLabel();
@@ -614,6 +615,12 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 			jLabel10 = new JLabel();
 			jPanel7.add(jLabel10, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 			jLabel10.setText("    ");
+		}
+		{
+			jTextField_shipCount = new JTextField();
+			jPanel7.add(jTextField_shipCount, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jTextField_shipCount.setText("       ");
+			jTextField_shipCount.setPreferredSize(new java.awt.Dimension(34, 22));
 		}
 		jPanel2.add(jPanel9, BorderLayout.SOUTH);
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -1472,7 +1479,7 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 			prefs.putLong("LAST_ORDER_TIME",to.getTimeInMillis());
 			// createTable(0);
 
-			
+			UpdateShippedOrder();
 			
 			// orderCounter = htmlIdx;
 			// createHtml(fileName + ".html");
@@ -1487,7 +1494,171 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 		}
 	}
 
+	void UpdateShippedOrder()
+	{
+		try {
+			Statement db_st = db_con.createStatement();
+			
+		    
+			String sql = "SELECT OrderID, OrderDate "+"FROM test1db.EMBVID_ORDERS5 "+
+						  "WHERE OrderStatus='COMPLETE' AND ShippingStatus='NOT-SHIPPED'";
+			
 
+			ResultSet rs = db_st.executeQuery(sql);
+			
+			 ArrayList lstOrders = new ArrayList();
+			 StringBuilder orderId;
+			while(rs.next()){
+				    	//String title = wrapTitle(rs.getString("Item"));
+				    	//String addressdata = wrapAddress(rs.getString("ShipAddress"));			    
+					
+				    	try {
+				    
+				    		/*
+				    	      
+								*/
+				    	     
+				    	     
+				    	      //while (st.hasMoreTokens()) {
+				    	        lstOrders.add(rs.getString("OrderID"));
+				    	      //}
+
+				    	       
+				    	       /*
+				    	      
+
+				    	      int idx = this.cbxOrderStatus.getSelectedIndex();
+				    	      OrderStatusCodeType status = (OrderStatusCodeType) ControlEntryTypes.orderStatuses[idx].Tag;
+				    	      api.setOrderStatus(status);
+
+				    	      idx = this.cbxOrderRole.getSelectedIndex();
+				    	      TradingRoleCodeType role = (TradingRoleCodeType) ControlEntryTypes.orderRoles[idx].Tag;
+				    	      api.setOrderRole(role);
+
+				    	      if (this.txtStartDate.getText().trim().length() > 0) {
+				    	        Calendar date = GuiUtil.getCalendarFromField(this.txtStartDate);
+				    	        api.setCreateTimeFrom(date);
+				    	      }
+
+				    	      if (this.txtEndDate.getText().trim().length() > 0) {
+				    	        Calendar date = GuiUtil.getCalendarFromField(this.txtEndDate);
+				    	        api.setCreateTimeTo(date);
+				    	      }
+
+				    	      OrderType[] orders = api.getOrders();
+				    	      displayOrders(orders);
+				    	      */
+				    	    }
+				    	    catch (Exception ex) {
+				    	      ( (EmbvidFrame)this.getParent()).showErrorMessage(ex.getMessage());
+				    	    }
+				    	
+				}
+				
+				int needToShipCount = 0;
+			 
+		  	      int size = lstOrders.size();
+		  	      
+		  	      String[] orderIds = new String[size];
+		  	      for (int i = 0; i < size; i++) {
+		  	        orderIds[i] = lstOrders.get(i).toString();
+		  	      }
+		  	    DetailLevelCodeType[] detailLevels = new DetailLevelCodeType[] {
+		    	          DetailLevelCodeType.RETURN_ALL,
+		    	          DetailLevelCodeType.ITEM_RETURN_ATTRIBUTES,
+		    	          DetailLevelCodeType.ITEM_RETURN_DESCRIPTION
+		    	      };
+
+		    	      GetOrdersCall api = new GetOrdersCall(this.apiContext);
+		    	      api.setDetailLevel(detailLevels);
+		    	      
+		    	      OrderIDArrayType oiat = new OrderIDArrayType();
+		    	      oiat.setOrderID(orderIds);
+		    	      api.setOrderIDArray(oiat);
+		    	      
+		    	      //api.setOrderStatus(status);
+		    	      //api.setOrderRole(role);
+		    	      api.setOrderStatus(OrderStatusCodeType.COMPLETED);
+		    	      api.setOrderRole(TradingRoleCodeType.SELLER);
+		    	      
+		    	      OrderType[] orders = api.getOrders();
+		    	      for (OrderType order : orders)
+						{
+		    	      TransactionArrayType transactionArray = order.getTransactionArray();
+						TransactionType[] transactions = transactionArray.getTransaction();
+
+						int transactionCounter = 0;
+						//int rowIdx = orderCounter - 1;
+						//Integer Quantity = 0;
+						//boolean shipped = false;
+						//boolean status = false;
+						for (TransactionType transaction : transactions) 
+						{
+							OrderDetails orderInfo = new OrderDetails();
+							String orderID = order.getOrderID();
+							/*** Store Order ID ***/
+							//orderInfo.setOrderId(order.getOrderID());
+							//dataTable[rowIdx][ORDER_ID] = order.getOrderID();
+							System.out.println("Order " +orderID+"\n"+
+							"Buyer "+ transaction.getBuyer().getEmail()+"\n"+
+									"ID "+ order.getBuyerUserID()+ "\n"+
+							"Title "+ transaction.getItem().getTitle());
+
+
+							//String buyerID = order.getBuyerUserID()+"\n"+transaction.getBuyer().getEmail();
+							//dataTable[rowIdx][BUYER_ID] = buyerID;
+
+
+							//System.out.println("\nBuyerId: "+ buyerID);
+
+
+
+							/*** Store Item Title ***/
+							//orderInfo.setItem();
+							//String itemTitle = transaction.getItem().getTitle();
+							//Title1[rowIdx] = temp;
+							//pdfTitle[rowIdx] = itemTitle;
+							//dataTable[rowIdx][ITEM_TITLE] = itemTitle;
+
+							//System.out.println("Transaction ID "
+							//    					+ transaction.getTransactionID() + " ItemID: "
+							//					    + transaction.getItem().getItemID()
+							//    					+ " Item Title : "
+							//    					+ itemTitle);
+
+							if (order.getShippedTime() != null)
+							{
+								//System.out.println("Ship:" + order.getShippingDetails().getShipmentTrackingDetails().toString());
+								System.out.println(">>> SHIPPED\n");
+								
+								
+								sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"+orderID+"'";
+
+							    db_st.executeUpdate(sql);
+								//dataTable[rowIdx][TRACK] = "SHIPPED";
+								//shipped = true;
+								//orderInfo.setShippingStatus("SHIPPED");
+
+							}else
+							{
+								System.out.println("<<< TO BE SHIPPED !!\n");
+								needToShipCount++;
+								//dataTable[rowIdx][TRACK] = "TO-BE-SHIPPED";
+								//shipped = false;
+								//orderInfo.setShippingStatus("NOT-SHIPPED");
+							}
+
+						
+						}
+						}
+		    	      jTextField_shipCount.setText(String.format("%d", needToShipCount));
+  	      
+			}
+			catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Exception: "+ex.getMessage().toString(), "ERROR !!", JOptionPane.INFORMATION_MESSAGE);	
+			}
+	}
+	
 	String getStateName(String code)
 	{
 		String state[][] = {
@@ -1638,6 +1809,8 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 			JOptionPane.showMessageDialog(null, "Exception: "+ex.getMessage().toString(), "ERROR !!", JOptionPane.INFORMATION_MESSAGE);	
 		}
 	}
+	
+
 
 	void btnFeedback_actionPerformed(ActionEvent e) {
 		try
