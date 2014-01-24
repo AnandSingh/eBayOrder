@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+  <!-- soap server, for production, use: https://api.ebay.com/wsapi -->
+  <ServerUrl>https://api.ebay.com/wsapi</ServerUrl>
+  <!-- eps server, for production, use: https://api.ebay.com/ws/api.dll -->
+  <EpsServerUrl>https://api.ebay.com/ws/api.dll</EpsServerUrl>
+  <SignInUrl>https://signin.ebay.com/ws/eBayISAPI.dll?SignIn</SignInUrl>
+
+  <!--LogFilePath>SanityTest.log</LogFilePath-->
+
+  <ApiCredential>
+    <Developer>Place your developer ID</Developer>
+    <Application>Place your Application ID</Application>
+    <Certificate>Place your Certification ID</Certificate>
+  </ApiCredential>
+
+  <eBayCredential>
+    <!-- Token is used for both API server and EPS server -->
+    <Token>Place your Token ID</Token>
+  </eBayCredential>
+  <RuName></RuName>
+  
+  <!-- set this if you access eBay API server behind a proxy -->
+  <Proxy>
+   <Host></Host>
+   <Port></Port>
+   <!-- set username/password if necessary -->
+   <Username>Place your username</Username>
+   <Password>Place your password</Password>
+  </Proxy>
+
+  <ShipmentRemark>
+  Dear Customer, We have shipped the product and it will be deliver in 3 working days. If you are happy with our service please leave a positive feedback for us. It's a pleasure doing business with you.
+  </ShipmentRemark>
+  <!-- set the default feedback text to your coustomer -->
+<FeedbackText>
+    A+++ Buyer, Smooth Transaction, Valued Customer.
+</FeedbackText>
+
+<!-- DATABASE CONNECTION -->
+<DB_URL>
+jdbc:mysql://localhost:3306/test1db
+</DB_URL>
+<DB_USER>
+test111
+</DB_USER>
+<DB_PASS>
+test222
+</DB_PASS>
+<!-- EMAIL CONFIGRATION -->
+
+<YOUR_EMAIL>Place your email ID</YOUR_EMAIL>
+<YOUR_PASSWORD>Place your email password</YOUR_PASSWORD>
+<YOUR_SMTP_HOST>Place your smtp host like mail.google.com</YOUR_SMTP_HOST>
+<YOUR_SMTP_PORT>25</YOUR_SMTP_PORT>
+<TO_EMAIL>Place the email of recipeient </TO_EMAIL>
+
+</Configuration>
