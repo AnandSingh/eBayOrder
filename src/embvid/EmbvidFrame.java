@@ -138,6 +138,19 @@ import javax.activation.*;
 
 
 
+
+/**
+* This code was edited or generated using CloudGarden's Jigloo
+* SWT/Swing GUI Builder, which is free for non-commercial
+* use. If Jigloo is being used commercially (ie, by a corporation,
+* company or business for any purpose whatever) then you
+* should purchase a license for each developer using Jigloo.
+* Please visit www.cloudgarden.com for details.
+* Use of Jigloo implies acceptance of these licensing terms.
+* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+*/
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -161,6 +174,12 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 	private static final int BUYER_ID = 4;
 	private static final int SHIP_ADDR = 5;
 	private static final int TRACK = 6;
+	private JLabel jLabel10;
+	private JLabel jLabel9;
+	private JTextField jTextField2;
+	private JLabel jLabel8;
+	private JTextField jTextField1;
+	private JLabel jLabel1;
 	private JTextField jTextField_FromTime;
 	private JLabel jLabel7;
 	private JTextField jTextField_ToTime;
@@ -240,12 +259,10 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 	JPanel jPanel7 = new JPanel();
 	JPanel jPanel9 = new JPanel();
 	GridBagLayout gridBagLayout1 = new GridBagLayout();
-	JLabel jLabel1 = new JLabel();
 	JLabel jLabel2 = new JLabel();
 	JTextField txtOrderId = new JTextField();
 	//JTextField txtStartDate = new JTextField();
 	//JTextField txtEndDate = new JTextField();
-	JComboBox cbxNumDays = new JComboBox();
 	BorderLayout borderLayout5 = new BorderLayout();
 	JScrollPane jScrollPane1 = new JScrollPane();
 	JLabel jLabel20 = new JLabel();
@@ -452,14 +469,11 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 
 		jPanel1.setLayout(borderLayout2);
 
-		btnGetOrders.setText("Get Orders");
+		btnGetOrders.setText("Refresh Orders");
 		btnGetOrders.addActionListener(new Frame_btnGetOrders_actionAdapter(this));
 		jPanel2.setLayout(borderLayout4);
 		jPanel7.setLayout(gridBagLayout1);
-		jLabel1.setText("Select Date");
 		jLabel2.setText("        ");
-		cbxNumDays.setMinimumSize(new Dimension(80, 21));
-		cbxNumDays.setPreferredSize(new Dimension(80, 21));
 
 		jPanel9.setLayout(borderLayout5);
 		jPanel9.setBorder(null);
@@ -490,6 +504,7 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 		jLabel20.setPreferredSize(new java.awt.Dimension(130, 25));
 		jPanel14.add(txtNumberOfOrders, new GridBagConstraints(3, 0, 1, 2, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+		txtNumberOfOrders.setText("   ");
 		{
 			jLabel6 = new JLabel();
 			jPanel14.add(jLabel6, new GridBagConstraints(4, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -521,7 +536,8 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 		{
 			jBtnUpdate = new JButton();
 			jPanel16.add(jBtnUpdate);
-			jBtnUpdate.setText("Update Tracking");
+			jBtnUpdate.setText("Update Shipping Tracking");
+			jBtnUpdate.setPreferredSize(new java.awt.Dimension(175, 28));
 			jBtnUpdate.addActionListener(new Frame_btnUpdate_actionAdapter(this));
 		}
 		{
@@ -532,7 +548,8 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 		{
 			jBtnFeebback = new JButton();
 			jPanel16.add(jBtnFeebback);
-			jBtnFeebback.setText("Update Feedback");
+			jBtnFeebback.setText("Send Buyer Feedback");
+			jBtnFeebback.setPreferredSize(new java.awt.Dimension(150, 29));
 			jBtnFeebback.addActionListener(new Frame_btnFeedback_actionAdapter(this));
 		}
 		jPanel0.add(jPanel11, BorderLayout.WEST);
@@ -540,21 +557,18 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 		jPanel0.add(jPanel13, BorderLayout.SOUTH);
 		jPanel0.add(jScrollPane1, BorderLayout.CENTER);
 
-		jPanel7.add(jLabel1,   new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0
-				,GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 		jPanel7.add(jLabel2,  new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0
 				,GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-		jPanel7.add(cbxNumDays, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-		jPanel7.add(btnGetOrders, new GridBagConstraints(0, 8, 1, 2, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+		jPanel7.add(btnGetOrders, new GridBagConstraints(0, 14, 1, 2, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 		{
 			jButtonMail = new JButton();
-			jPanel7.add(jButtonMail, new GridBagConstraints(2, 8, 1, 2, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jPanel7.add(jButtonMail, new GridBagConstraints(2, 14, 1, 2, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 			jButtonMail.setText("eMail Order");
 			jButtonMail.addActionListener(new Frame_btnSendMail_actionAdapter(this));
 		}
 		{
 			jLabel3 = new JLabel();
-			jPanel7.add(jLabel3, new GridBagConstraints(0, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jPanel7.add(jLabel3, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 			jLabel3.setText("              ");
 			jLabel3.setEnabled(false);
 		}
@@ -569,15 +583,44 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 			jCheckBox.setText("Show Completed Sales Only");
 			jCheckBox.setSelected(true);
 		}
+		{
+			jLabel1 = new JLabel();
+			jPanel7.add(jLabel1, new GridBagConstraints(1, 0, 2, 1, 0.0, 0.0, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jLabel1.setText("Total Items need to Shipped");
+		}
+		{
+			jTextField1 = new JTextField();
+			jPanel7.add(jTextField1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jTextField1.setText("         ");
+			jTextField1.setPreferredSize(new java.awt.Dimension(42, 22));
+		}
+		{
+			jLabel8 = new JLabel();
+			jPanel7.add(jLabel8, new GridBagConstraints(1, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jLabel8.setText("Total Feedback need to sent");
+		}
+		{
+			jTextField2 = new JTextField();
+			jPanel7.add(jTextField2, new GridBagConstraints(2, 7, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jTextField2.setText("         ");
+			jTextField2.setPreferredSize(new java.awt.Dimension(42, 22));
+		}
+		{
+			jLabel9 = new JLabel();
+			jPanel7.add(jLabel9, new GridBagConstraints(0, 9, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jLabel9.setText("                ");
+		}
+		{
+			jLabel10 = new JLabel();
+			jPanel7.add(jLabel10, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			jLabel10.setText("    ");
+		}
 		jPanel2.add(jPanel9, BorderLayout.SOUTH);
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
 
 		String[] numDays = {"1", "2", "3", "4" , "5", "6", "7", "8", "9", "10", };
 
 		ComboBoxModel dataModel = new DefaultComboBoxModel(numDays);
-		this.cbxNumDays.setModel(dataModel);
-		this.cbxNumDays.setSelectedIndex(0);
-
 
 		jPanel2.setPreferredSize(new java.awt.Dimension(1190, 93));
 		jPanel7.setPreferredSize(new java.awt.Dimension(1190, 88));
