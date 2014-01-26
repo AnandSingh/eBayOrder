@@ -143,21 +143,6 @@ import javax.mail.internet.*;
 import javax.activation.*;
 
 
-
-
-
-/**
-* This code was edited or generated using CloudGarden's Jigloo
-* SWT/Swing GUI Builder, which is free for non-commercial
-* use. If Jigloo is being used commercially (ie, by a corporation,
-* company or business for any purpose whatever) then you
-* should purchase a license for each developer using Jigloo.
-* Please visit www.cloudgarden.com for details.
-* Use of Jigloo implies acceptance of these licensing terms.
-* A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
-* THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
-* LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
-*/
 /**
  * <p>Title: </p>
  * <p>Description: </p>
@@ -353,8 +338,7 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 	{
 		String xmlPath = CONFIG_XML_NAME;
 		Document doc = XmlUtil.createDomByPathname(xmlPath);//getConfigXmlText()
-
-		Node config = XmlUtil.getChildByName(doc, "Configuration");
+Node config = XmlUtil.getChildByName(doc, "Configuration");
 		if( config == null )
 			throw new Exception("<Configuration> was not found.");
 
@@ -1234,7 +1218,11 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
               }
             }*/
 
+						OrderDetails orderInfo = new OrderDetails();
 
+						/*** Store Order ID ***/
+						orderInfo.setOrderId(order.getOrderID());
+						orderInfo.setBuyerID(order.getBuyerUserID());
 
 						TransactionArrayType transactionArray = order.getTransactionArray();
 						TransactionType[] transactions = transactionArray.getTransaction();
@@ -1246,69 +1234,32 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 						//boolean status = false;
 						for (TransactionType transaction : transactions) 
 						{
-							OrderDetails orderInfo = new OrderDetails();
-
-							/*** Store Order ID ***/
-							orderInfo.setOrderId(order.getOrderID());
+							int qty = 0;
 							//dataTable[rowIdx][ORDER_ID] = order.getOrderID();
 							System.out.println("Order " +orderCounter+" of" +"Transaction "
 									+ ++transactionCounter);
 
 
-							/*ShippingServiceOptionsType shipping = order.getShippingServiceSelected();
-                if (shipping == null) {
-
-                   if (order.getCheckoutStatus().getStatus() == CompleteStatusCodeType.COMPLETE) {
-                        shipping = order.getShippingDetails()
-                            .getShippingServiceOptions(0);
-                      } else {
-                        shipping = new ShippingServiceOptionsType();
-                   }
-               }*/
-
-
 							/*** Store Buyer ID***/
 							orderInfo.setBuyerEmail(transaction.getBuyer().getEmail());
-							orderInfo.setBuyerID(order.getBuyerUserID());
-							//String buyerID = order.getBuyerUserID()+"\n"+transaction.getBuyer().getEmail();
-							//dataTable[rowIdx][BUYER_ID] = buyerID;
-
-
-							//System.out.println("\nBuyerId: "+ buyerID);
-
-
+							
 
 							/*** Store Item Title ***/
 							orderInfo.setItem(transaction.getItem().getTitle());
-							//String itemTitle = transaction.getItem().getTitle();
-							//Title1[rowIdx] = temp;
-							//pdfTitle[rowIdx] = itemTitle;
-							//dataTable[rowIdx][ITEM_TITLE] = itemTitle;
-
-							//System.out.println("Transaction ID "
-							//    					+ transaction.getTransactionID() + " ItemID: "
-							//					    + transaction.getItem().getItemID()
-							//    					+ " Item Title : "
-							//    					+ itemTitle);
-
+							
 							if (order.getShippedTime() != null)
-							{
-								//System.out.println("Ship:" + order.getShippingDetails().getShipmentTrackingDetails().toString());
-								//System.out.println(">>> SHIPPED");
-								//dataTable[rowIdx][TRACK] = "SHIPPED";
-								//shipped = true;
-								orderInfo.setShippingStatus("SHIPPED");
+						    {
+						                orderInfo.setShippingStatus("SHIPPED");
+						    }else
+						    {
+						    	orderInfo.setShippingStatus("NOT-SHIPPED");
+						    }
 
-							}else
-							{
-								//System.out.println("<<< TO BE SHIPPED !!");
-								//dataTable[rowIdx][TRACK] = "TO-BE-SHIPPED";
-								//shipped = false;
-								orderInfo.setShippingStatus("NOT-SHIPPED");
-							}
+							
 
 							/*** Store Quantity ***/
-							orderInfo.setQuantity(transaction.getQuantityPurchased().intValue());
+							qty = qty + transaction.getQuantityPurchased().intValue();
+							orderInfo.setQuantity(qty);
 							//Quantity = Quantity + transaction.getQuantityPurchased().intValue();
 							//dataTable[rowIdx][QTY_TOTAL] = Quantity.toString();
 							//System.out.println("Quantity: "
@@ -1344,21 +1295,7 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 							//
 
 
-							/*System.out.println("CreatedDate : " + transaction.getCreatedDate().getTime() +" "+formatter.format(transaction.getCreatedDate().getTime()));
-
-                if (order.getShippingDetails().getSalesTax().getSalesTaxAmount() != null) {
-                		AmountType tax = order.getShippingDetails().getSalesTax().getSalesTaxAmount();
-                		System.out.println("Sales Tax : " + tax.getValue());
-                } else {
-                		System.out.println("Sales Tax : 0.0");
-                }*/
-
-							/*if (transaction.getFinalValueFee() != null) {
-                	AmountType finalValueFee = transaction.getFinalValueFee();
-                	System.out.println("Final Value Fee : "
-                			+ finalValueFee.getValue());
-                }*/
-
+							orderInfo.setPaisaPayID(transaction.getTransactionID());
 
 							/*** Store Payment Method ***/
 							//dataTable[rowIdx][3] = order.getCheckoutStatus().getPaymentMethod();
@@ -1373,30 +1310,7 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 							//	String qtyTotal = "Qty: "  + Quantity.toString()+"\n"+"Total: "+order.getAmountPaid().getValue()+""; 
 							//	dataTable[rowIdx][QTY_TOTAL] = qtyTotal;
 
-							/*if (order.getCheckoutStatus().equals(CheckoutStatusCodeType.CHECKOUT_COMPLETE)) {// To check if the item is ready for shipping
-                System.out.format("Payment Method: %s \nTotal: %s \nAdjustment Amount: %s \n",
-                        						order.getCheckoutStatus()
-                            					.getPaymentMethod(),
-                        						order.getAmountPaid().getValue(),
-                        						order.getAdjustmentAmount());
-
-
-                if (order.getShippingServiceSelected() != null) {
-                  System.out.println("Shipping Service: "
-                      + order.getShippingServiceSelected()
-                          .getShippingService());
-                  if (order.getShippingServiceSelected()
-                      .getShippingServiceCost() != null) {
-                    System.out
-                        .println("Shipping Cost: "
-                            + order.getShippingServiceSelected()
-                                .getShippingServiceCost()
-                                .getValue());
-                  }
-                }
-                }*/
-
-							AddressType shippingAddress = order.getShippingAddress();
+					    	AddressType shippingAddress = order.getShippingAddress();
 
 
 							StringBuffer ShipAddressBuff = new StringBuffer();
@@ -1458,10 +1372,8 @@ public class EmbvidFrame extends JFrame implements KeyListener, ListSelectionLis
 
 							//System.out.println("\n" + orderInfo.toString());
 							System.out.println("---------------------------------------");
-
-							updateDatabase(orderInfo);
-
 						}
+						updateDatabase(orderInfo);
 					}
 				} else {
 					System.out
