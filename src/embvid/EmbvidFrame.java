@@ -116,6 +116,7 @@ import com.ebay.soap.eBLBaseComponents.CheckoutStatusCodeType;
 import com.ebay.soap.eBLBaseComponents.CommentTypeCodeType;
 import com.ebay.soap.eBLBaseComponents.CompleteStatusCodeType;
 import com.ebay.soap.eBLBaseComponents.DetailLevelCodeType;
+import com.ebay.soap.eBLBaseComponents.ExternalTransactionType;
 import com.ebay.soap.eBLBaseComponents.FeedbackDetailType;
 import com.ebay.soap.eBLBaseComponents.OrderIDArrayType;
 import com.ebay.soap.eBLBaseComponents.OrderStatusCodeType;
@@ -1186,7 +1187,6 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			GetOrdersCall api = new GetOrdersCall(this.apiContext);
 			api.setDetailLevel(detailLevels);
 
-
 			new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 			Calendar to = GregorianCalendar.getInstance();
 
@@ -1322,7 +1322,20 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 								.getTimeInMillis());
 
 						/*** Store Paisa Pay ID ***/
-						orderInfo.setPaisaPayID(transaction.getTransactionID());
+						ExternalTransactionType[] extTrancType = order
+								.getExternalTransaction();
+						StringBuilder paisaPayId = new StringBuilder();
+						if (order.getExternalTransactionLength() == 1) {
+							paisaPayId.append(extTrancType[0]
+									.getExternalTransactionID());
+						} else if (order.getExternalTransactionLength() > 1) {
+							for (int i = 0; i < order.getExternalTransactionLength(); i++) {
+								paisaPayId.append(extTrancType[i]
+												.getExternalTransactionID())
+												.append(",");
+							}
+						}
+						orderInfo.setPaisaPayID(paisaPayId.toString());
 
 						/*** Store Payment Method ***/
 						orderInfo.setPrice(order.getAmountPaid().getValue());
@@ -1474,16 +1487,16 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				for (TransactionType transaction : transactions) {
 					OrderDetails orderInfo = new OrderDetails();
 					String orderID = order.getOrderID();
+	
 					/*** Store Order ID ***/
 					System.out.println("Order " + orderID + "\n" + "Buyer "
 							+ transaction.getBuyer().getEmail() + "\n" + "ID "
 							+ order.getBuyerUserID() + "\n" + "Title "
-							+ transaction.getItem().getTitle());
-
-
+							+ transaction.getItem().getTitle() + "\n"
+							);
 					if (order.getShippedTime() != null) {
 						System.out.println(">>> SHIPPED\n");
-						
+
 						/*** Update the database ***/
 						sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
 								+ orderID + "'";
@@ -1493,9 +1506,6 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 					} else {
 						System.out.println("<<< TO BE SHIPPED !!\n");
 						needToShipCount++;
-						// dataTable[rowIdx][TRACK] = "TO-BE-SHIPPED";
-						// shipped = false;
-						// orderInfo.setShippingStatus("NOT-SHIPPED");
 					}
 
 				}
