@@ -1386,13 +1386,13 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 							String State = getStateName(stateCode);
 							ShipAddressBuff.append("\n").append(State);
 						}
-						if (shippingAddress.getCountryName() != null) {
+						/*if (shippingAddress.getCountryName() != null) {
 							temp = shippingAddress.getCountryName();
 							ShipAddressBuff.append(" - ").append(temp);
-						}
+						}*/
 						if (shippingAddress.getPhone() != null) {
 							temp = shippingAddress.getPhone();
-							ShipAddressBuff.append("\nTel - ").append(temp);
+							ShipAddressBuff.append("\nTel: ").append(temp);
 						}
 						orderInfo.setShipAddress(ShipAddressBuff.toString());
 
@@ -1438,8 +1438,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 			ResultSet rs = db_st.executeQuery(sql);
 
-			ArrayList lstOrders = new ArrayList();
-			StringBuilder orderId;
+			ArrayList<String> lstOrders = new ArrayList<String>();
+			
 			while (rs.next()) {
 				try {
 					lstOrders.add(rs.getString("OrderID"));
@@ -1449,6 +1449,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				}
 
 			}
+			rs.close();
 
 			int needToShipCount = 0;
 
@@ -1477,37 +1478,24 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 			OrderType[] orders = api.getOrders();
 			for (OrderType order : orders) {
-				TransactionArrayType transactionArray = order
-						.getTransactionArray();
-				TransactionType[] transactions = transactionArray
-						.getTransaction();
+				String orderID = order.getOrderID();
+			
+				System.out.println("Order " + orderID + "\n" + "Buyer "
+						+ order.getBuyerUserID() + "\n" + "Title "
+						);
+				
+				if (order.getShippedTime() != null) {
+					System.out.println(">>> SHIPPED\n");
+					/*** Update the database ***/
+					sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
+							+ orderID + "'";
 
-				int transactionCounter = 0;
+					db_st.executeUpdate(sql);
 
-				for (TransactionType transaction : transactions) {
-					OrderDetails orderInfo = new OrderDetails();
-					String orderID = order.getOrderID();
-	
-					/*** Store Order ID ***/
-					System.out.println("Order " + orderID + "\n" + "Buyer "
-							+ transaction.getBuyer().getEmail() + "\n" + "ID "
-							+ order.getBuyerUserID() + "\n" + "Title "
-							+ transaction.getItem().getTitle() + "\n"
-							);
-					if (order.getShippedTime() != null) {
-						System.out.println(">>> SHIPPED\n");
-
-						/*** Update the database ***/
-						sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
-								+ orderID + "'";
-
-						db_st.executeUpdate(sql);
-
-					} else {
-						System.out.println("<<< TO BE SHIPPED !!\n");
-						needToShipCount++;
-					}
-
+				} else {
+					System.out.println("<<< TO BE SHIPPED !!\n");
+					needToShipCount++;
+					
 				}
 			}
 			jTextField_shipCount.setText(String.format("%d", needToShipCount));
