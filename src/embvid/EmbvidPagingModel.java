@@ -63,6 +63,23 @@ import org.xml.sax.SAXException;
 import com.ebay.sdk.util.XmlUtil;
 import com.mysql.jdbc.ResultSetMetaData;
 
+/**
+ * <p>
+ * Title: EmbvidPagingModel.Java
+ * </p>
+ * <p>
+ * Description: A Java Application to process orders of ebay.
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2014
+ * </p>
+ * <p>
+ * Company:
+ * </p>
+ * 
+ * @author Anand Singh
+ * @version 1.0
+ */
 class EmbvidPagingModel extends AbstractTableModel {
 	
 	public Class<String> getColumnClass(int columnIndex) {

@@ -23,22 +23,38 @@ package embvid;
 
 import com.ebay.sdk.TokenEventListener;
 import com.ebay.sdk.util.eBayUtil;
- 
+
+/**
+ * <p>
+ * Title: EmbvidTokenEventListener.Java
+ * </p>
+ * <p>
+ * Description: A Java Application to process orders of ebay.
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2014
+ * </p>
+ * <p>
+ * Company:
+ * </p>
+ * 
+ * @author Anand Singh
+ * @version 1.0
+ */
 public class EmbvidTokenEventListener implements TokenEventListener {
 
 	EmbvidFrame mainFrame;
 
-  public EmbvidTokenEventListener(EmbvidFrame mainFrame) {
-    this.mainFrame = mainFrame;
-  }
+	public EmbvidTokenEventListener(EmbvidFrame mainFrame) {
+		this.mainFrame = mainFrame;
+	}
 
-  public void renewToken(String newToken)
-  {
-    mainFrame.showInfoMessage("eBay Token has been renewed successfully!");
-  }
+	public void renewToken(String newToken) {
+		mainFrame.showInfoMessage("eBay Token has been renewed successfully!");
+	}
 
-  public void warnHardExpiration(java.util.Date expirationDate)
-  {
-    mainFrame.showInfoMessage("Received token hard-expiration-warning: " + eBayUtil.toAPITimeString(expirationDate));
-  }
+	public void warnHardExpiration(java.util.Date expirationDate) {
+		mainFrame.showInfoMessage("Received token hard-expiration-warning: "
+				+ eBayUtil.toAPITimeString(expirationDate));
+	}
 }

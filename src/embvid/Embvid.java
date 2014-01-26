@@ -26,44 +26,55 @@ import javax.swing.UIManager;
 import com.ebay.sdk.helper.ui.GuiUtil;
 
 /**
- * A Hello World-like sample, 
- * showing how to call eBay API using eBay SDK.
- *  
- * @author boyang
+ * <p>
+ * Title: EmbvidAboutBox.Java
+ * </p>
+ * <p>
+ * Description: A Java Application to process orders of ebay.
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2014
+ * </p>
+ * <p>
+ * Company:
+ * </p>
+ * 
+ * @author Anand Singh
+ * @version 1.0
  */
 public class Embvid {
 	boolean packFrame = false;
-	  //Construct the application
-	  public Embvid() {
-	    EmbvidFrame frame = new EmbvidFrame();
-	    //Validate frames that have preset sizes
-	    //Pack frames that have useful preferred size info, e.g. from their layout
-	    if (packFrame) {
-	      frame.pack();
-	    }
-	    else {
-	      frame.validate();
-	    }
 
-	    GuiUtil.CenterComponent(frame);
-	    //frame.pack();
-	    frame.setVisible(true);
-	    frame.select();
-  
-    
-	  }
-	  
+	// Construct the application
+	public Embvid() {
+		EmbvidFrame frame = new EmbvidFrame();
+		// Validate frames that have preset sizes
+		// Pack frames that have useful preferred size info, e.g. from their
+		// layout
+		if (packFrame) {
+			frame.pack();
+		} else {
+			frame.validate();
+		}
+
+		GuiUtil.CenterComponent(frame);
+		// frame.pack();
+		frame.setVisible(true);
+		frame.select();
+
+	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		try {
-		      //UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		      UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-		    }
-		    catch(Exception e) {
-		      e.printStackTrace();
-		    }
-		    new Embvid();
+			// UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			UIManager
+					.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		new Embvid();
 	}
 }

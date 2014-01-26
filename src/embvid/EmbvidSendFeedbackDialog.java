@@ -21,6 +21,23 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
 package embvid;
 
+/**
+ * <p>
+ * Title: EmbvidDensFeedBackDialog.Java
+ * </p>
+ * <p>
+ * Description: A Java Application to process orders of ebay.
+ * </p>
+ * <p>
+ * Copyright: Copyright (c) 2014
+ * </p>
+ * <p>
+ * Company:
+ * </p>
+ * 
+ * @author Anand Singh
+ * @version 1.0
+ */
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
