@@ -137,6 +137,18 @@ import javax.mail.internet.*;
 import javax.activation.*;
 
 /**
+ * This code was edited or generated using CloudGarden's Jigloo
+ * SWT/Swing GUI Builder, which is free for non-commercial
+ * use. If Jigloo is being used commercially (ie, by a corporation,
+ * company or business for any purpose whatever) then you
+ * should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details.
+ * Use of Jigloo implies acceptance of these licensing terms.
+ * A COMMERCIAL LICENSE HAS NOT BEEN PURCHASED FOR
+ * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
+ * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
+ */
+/**
  * <p>
  * Title:Embvid.java
  * </p>
@@ -187,15 +199,6 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	private JButton jBtnUpdate;
 	private JLabel jLabel3;
 
-	// private String signInUrl =
-	// "http://my.sandbox.ebay.com/ws/eBayISAPI.dll?SignIn";
-
-	// String[] Title1;// = new String[size];
-	// String[] addressArr;// = new String[size];
-	// int orderCounter = 0;
-	// String[] pdfTitle;// = new String[size];
-	// String[] pdfAddressArr;// = new String[size];
-
 	String db_url = null;
 	String db_user = null;
 	String db_pw = null;
@@ -206,8 +209,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	String fileName = "";
 	private Preferences prefs;
 
-	static byte[] raw = new byte[] { 'T', 'h', 'i', 's', 'I', 's', 'A', 'S',
-			'e', 'c', 'r', 'e', 't', 'K', 'e', 'y' };
+	static byte[] raw = new byte[] { '*', 'T', 'h', 'i', 's', 'I', 's', 'A',
+			'S', 'e', 'c', 'r', 'e', 't', 'K', 'e', 'y', '*' };
 
 	static SecureRandom rnd = new SecureRandom();
 
@@ -311,12 +314,12 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 					new EmbvidTokenEventListener(this));
 			customInit();
 
+			InitSqlDatabase();
+			
 			new Thread() {
 				public void run() {
-					System.out
-							.println("*****************************************************************Start Get orders thread");
-					InitSqlDatabase();
-					GetOrder();
+					
+					//GetOrder();
 				}
 			}.start();
 
@@ -599,7 +602,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			jPanel7.add(jCheckBox, new GridBagConstraints(4, 0, 2, 1, 0.0, 0.0,
 					GridBagConstraints.CENTER, GridBagConstraints.NONE,
 					new Insets(0, 0, 0, 0), 0, 0));
-			jCheckBox.setText("Show Completed Sales Only");
+			jCheckBox.setText("Show Items To Be Shipped");
 			jCheckBox.setSelected(true);
 		}
 		{
@@ -1026,12 +1029,26 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		RowFilter<EmbvidPagingModel, Object> rowFilter = new RowFilter<EmbvidPagingModel, Object>() {
 			public boolean include(Entry entry) {
 				String orderstatus = (String) entry.getValue(0);
-
 				if (orderstatus.contains("INCOMPLETE") == true) {
-					// Returning true indicates this row should be shown.
+					// Returning false indicates this row would not be
+					// shown.
 					return false;
 				}
-				// Age is <= 20, don't show it.
+				/*
+				 * If check box is slected then show only items to be shipped
+				 * TODO: Add an listener to update the whole table if checkbox
+				 * is deselected
+				 */
+				/*if (jCheckBox.isSelected() == true) {
+					String shipStatus = (String) entry.getValue(6);
+					System.out.println(shipStatus);
+					if (shipStatus.contentEquals("NOT-SHIPPED") == false ) {
+						System.out.println("----");
+						return false;
+					}
+					System.out.println("++++++");
+				}*/
+				// Returning true means show the row
 				return true;
 			}
 		};
@@ -1052,18 +1069,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		this.jScrollPane1.getViewport().setOpaque(true);
 		this.jScrollPane1.getViewport().setVisible(true);
 		this.setVisible(true);
-		// Use our own custom scrollpane.
-		// JScrollPane jsp = PagingModel.createPagingScrollPaneForTable(jt);
-		// getContentPane().add(jsp, BorderLayout.CENTER);
+		System.out.println("Update Table done --");
 
-		// table = new JTable(dm);
-		// table.setDefaultRenderer(String.class, new
-		// MultiLineTableCellRenderer());
-		// this.jScrollPane1.setEnabled(false);
-		// this.jScrollPane1.getViewport().add(table, null);
-		// this.jScrollPane1.getViewport().setOpaque(true);
-		// this.jScrollPane1.getViewport().setVisible(true);
-		// this.setVisible(true);
 	}
 
 	class OrderDetails {
@@ -1113,6 +1120,13 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 		void setItem(String Item) {
 			this.Item = Item;
+			
+			/*TODO: handle the multiple item brought in single transactions*/
+			
+			/*if (this.Item == null){
+				this.Item = Item;
+			}
+			this.Item = this.Item + "\n" + Item;*/
 		}
 
 		void setQuantity(int Quantity) {
@@ -1219,7 +1233,6 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			}
 
 			api.setCreateTimeTo(to);
-			// api.setNumberOfDays(60);
 
 			jTextField_ToTime.setText(formatter.format(to.getTime()));
 			/* append the time to the output file */
@@ -1329,10 +1342,12 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 							paisaPayId.append(extTrancType[0]
 									.getExternalTransactionID());
 						} else if (order.getExternalTransactionLength() > 1) {
-							for (int i = 0; i < order.getExternalTransactionLength(); i++) {
-								paisaPayId.append(extTrancType[i]
+							for (int i = 0; i < order
+									.getExternalTransactionLength(); i++) {
+								paisaPayId.append(
+										extTrancType[i]
 												.getExternalTransactionID())
-												.append(",");
+										.append(",");
 							}
 						}
 						orderInfo.setPaisaPayID(paisaPayId.toString());
@@ -1386,10 +1401,11 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 							String State = getStateName(stateCode);
 							ShipAddressBuff.append("\n").append(State);
 						}
-						/*if (shippingAddress.getCountryName() != null) {
-							temp = shippingAddress.getCountryName();
-							ShipAddressBuff.append(" - ").append(temp);
-						}*/
+						/*
+						 * if (shippingAddress.getCountryName() != null) { temp
+						 * = shippingAddress.getCountryName();
+						 * ShipAddressBuff.append(" - ").append(temp); }
+						 */
 						if (shippingAddress.getPhone() != null) {
 							temp = shippingAddress.getPhone();
 							ShipAddressBuff.append("\nTel: ").append(temp);
@@ -1439,7 +1455,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			ResultSet rs = db_st.executeQuery(sql);
 
 			ArrayList<String> lstOrders = new ArrayList<String>();
-			
+
 			while (rs.next()) {
 				try {
 					lstOrders.add(rs.getString("OrderID"));
@@ -1479,11 +1495,10 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			OrderType[] orders = api.getOrders();
 			for (OrderType order : orders) {
 				String orderID = order.getOrderID();
-			
+
 				System.out.println("Order " + orderID + "\n" + "Buyer "
-						+ order.getBuyerUserID() + "\n" + "Title "
-						);
-				
+						+ order.getBuyerUserID() + "\n" + "Title ");
+
 				if (order.getShippedTime() != null) {
 					System.out.println(">>> SHIPPED\n");
 					/*** Update the database ***/
@@ -1495,7 +1510,20 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				} else {
 					System.out.println("<<< TO BE SHIPPED !!\n");
 					needToShipCount++;
-					
+
+				}
+				TransactionArrayType transactionArray = order
+						.getTransactionArray();
+				TransactionType[] transactions = transactionArray
+						.getTransaction();
+				for (TransactionType transaction : transactions) {
+					System.out.println("Order Price : "
+							+ transaction.getTransactionPrice()
+							+ " CheckOut Status : "
+							+ order.getCheckoutStatus().getStatus()
+
+							+ " PaymentStatus : "
+							+ order.getCheckoutStatus().getEBayPaymentStatus());
 				}
 			}
 			jTextField_shipCount.setText(String.format("%d", needToShipCount));
@@ -1625,89 +1653,10 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	}
 
 	void btnFeedback_actionPerformed(ActionEvent e) {
-		try {
-			if (table == null) {
-				JOptionPane.showMessageDialog(this, "No Table Found !!");
-				return;
-			}
-			if (table.getCellEditor() != null) {
-				table.getCellEditor().stopCellEditing();
-			}
-			if (table.getModel().getRowCount() > 0) {
-
-				String xmlPath = CONFIG_XML_NAME;
-				Document doc = XmlUtil.createDomByPathname(xmlPath);
-				Node config = XmlUtil.getChildByName(doc, "Configuration");
-				if (config == null) {
-					JOptionPane.showMessageDialog(null,
-							"No Config.xml file found", "InfoBox: "
-									+ "Update Feedback !!",
-							JOptionPane.INFORMATION_MESSAGE);
-					return;
-				}
-
-				String feedbackText = XmlUtil.getChildString(config,
-						"FeedbackText").trim();
-
-				int rowcount = table.getModel().getRowCount();
-				table.setOpaque(true);
-				// String[] trackNum = new String[rowcount];
-				for (int i = 0; i < rowcount; i++) {
-					String TarckingNum = (String) table.getModel().getValueAt(
-							i, 6);
-					// if(TarckingNum.equals("TO-BE-SHIPPED") == true ||
-					// TarckingNum.equals("SHIPPED") == true)
-					// {
-					String OrderId = (String) table.getModel().getValueAt(i,
-							ORDER_ID);
-
-					String[] parts = OrderId.split("-");
-					String ItemId = parts[0]; // 004
-					String TransactionId = parts[1]; // 034556
-
-					String UserId = (String) table.getModel().getValueAt(i,
-							BUYER_ID);
-					String[] part1 = UserId.split("\n");
-					String targetUser = part1[0];
-
-					try {
-						LeaveFeedbackCall feedbackapi = new LeaveFeedbackCall(
-								this.apiContext);
-
-						FeedbackDetailType fd = new FeedbackDetailType();
-						fd.setItemID(ItemId);
-						fd.setCommentText(feedbackText);
-						fd.setCommentType(CommentTypeCodeType.POSITIVE);
-
-						feedbackapi.setTransactionID(TransactionId);
-
-						feedbackapi.setTargetUser(targetUser);
-						feedbackapi.setFeedbackDetail(fd);
-
-						feedbackapi.leaveFeedback();
-
-						AbstractResponseType resp = feedbackapi
-								.getResponseObject();
-						Date dt = resp.getTimestamp().getTime();
-						System.out.println("Feedback for " + targetUser + ": "
-								+ resp.getAck().value() + " Time: "
-								+ eBayUtil.toAPITimeString(dt));
-					} catch (Exception ex1) {
-
-						JOptionPane.showMessageDialog(null, "Feedback fail ("
-								+ ex1.getMessage() + ")", "Feedback Fail!! ",
-								JOptionPane.INFORMATION_MESSAGE);
-					}
-					// }
-				}
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			JOptionPane.showMessageDialog(null, "Exception: "
-					+ ex.getMessage().toString(), "ERROR !!",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
-
+				
+			EmbvidSendFeedbackDialog dlg = new EmbvidSendFeedbackDialog(this, "eBay SDK for Java - LeaveFeedback", true);
+		    GuiUtil.CenterComponent(dlg);
+		    dlg.setVisible(true);
 	}
 
 	void btnUpdate_actionPerformed(ActionEvent e) {

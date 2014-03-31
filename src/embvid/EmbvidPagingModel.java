@@ -82,6 +82,8 @@ import com.mysql.jdbc.ResultSetMetaData;
  */
 class EmbvidPagingModel extends AbstractTableModel {
 
+	private static final long serialVersionUID = 1L;
+
 	public Class<String> getColumnClass(int columnIndex) {
 		return String.class;
 	}
@@ -294,9 +296,7 @@ class dbRecord {
 
 			db_url = XmlUtil.getChildString(config, "DB_URL").trim();
 			db_user = XmlUtil.getChildString(config, "DB_USER").trim();
-			;
 			db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
-			;
 
 			// String url = "jdbc:mysql://localhost:3306/test1db";
 			// String user = "test111";
@@ -370,8 +370,7 @@ class dbRecord {
 
 		try {
 
-			String selRow = String.format("%d", row); // String.format("%d",
-														// (maxRow - row));
+			String selRow = String.format("%d", row); 
 
 			String selCol = "";
 			if (col == 0) {
@@ -397,9 +396,7 @@ class dbRecord {
 			while (rs.next()) {
 				switch (col) {
 				case 0:
-					// System.out.println(" : " +rs.getLong("OrderDate"));
-					long longDate = rs.getLong("OrderDate"); // from the
-																// database
+					long longDate = rs.getLong("OrderDate"); 
 					DateFormat formatter = new SimpleDateFormat(
 							"dd/MM/yyyy HH:mm:ss");
 					data = formatter.format(new Date(longDate));
@@ -466,7 +463,6 @@ class dbRecord {
 // A simple implementation of the Icon interface that can make
 // Up and Down arrows.
 //
-
 class ArrowIcon implements Icon {
 
 	public static final int UP = 0;

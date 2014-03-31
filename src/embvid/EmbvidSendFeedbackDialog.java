@@ -42,131 +42,448 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 import com.ebay.sdk.ApiContext;
 import com.ebay.sdk.SdkException;
 import com.ebay.sdk.call.AddToItemDescriptionCall;
+import com.ebay.sdk.call.LeaveFeedbackCall;
+import com.ebay.sdk.util.XmlUtil;
+import com.ebay.sdk.util.eBayUtil;
+import com.ebay.soap.eBLBaseComponents.AbstractResponseType;
+import com.ebay.soap.eBLBaseComponents.CommentTypeCodeType;
+import com.ebay.soap.eBLBaseComponents.FeedbackDetailType;
 
+/**
+ * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
+ * Builder, which is free for non-commercial use. If Jigloo is being used
+ * commercially (ie, by a corporation, company or business for any purpose
+ * whatever) then you should purchase a license for each developer using Jigloo.
+ * Please visit www.cloudgarden.com for details. Use of Jigloo implies
+ * acceptance of these licensing terms. A COMMERCIAL LICENSE HAS NOT BEEN
+ * PURCHASED FOR THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED LEGALLY FOR
+ * ANY CORPORATE OR COMMERCIAL PURPOSE.
+ */
 public class EmbvidSendFeedbackDialog extends JDialog {
-  /**
+	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-private ApiContext apiContext = new ApiContext();
+	private ApiContext apiContext = new ApiContext();
 
-  JPanel panel1 = new JPanel();
-  BorderLayout borderLayout1 = new BorderLayout();
-  JPanel jPanel1 = new JPanel();
-  JPanel jPanel2 = new JPanel();
-  JPanel jPanel3 = new JPanel();
-  BorderLayout borderLayout2 = new BorderLayout();
-  JPanel jPanel4 = new JPanel();
-  JPanel jPanel5 = new JPanel();
-  JButton btnCallAddToItemDescription = new JButton();
-  JPanel jPanel6 = new JPanel();
-  JPanel jPanel7 = new JPanel();
-  JTextField txtItemID = new JTextField();
-  JLabel jLabel1 = new JLabel();
-  JLabel jLabel2 = new JLabel();
-  JTextPane txtDescriptionToAppend = new JTextPane();
-  BorderLayout borderLayout3 = new BorderLayout();
-  JScrollPane jScrollPane1 = new JScrollPane();
+	final String CONFIG_XML_NAME = "Config.xml";
+	JPanel panel1 = new JPanel();
+	BorderLayout borderLayout1 = new BorderLayout();
+	JPanel jPanel1 = new JPanel();
+	JPanel jPanel2 = new JPanel();
+	JPanel jPanel3 = new JPanel();
+	BorderLayout borderLayout2 = new BorderLayout();
+	JPanel jPanel4 = new JPanel();
+	JPanel jPanel5 = new JPanel();
+	JButton btnCallAddToItemDescription = new JButton();
+	JPanel jPanel6 = new JPanel();
+	JPanel jPanel7 = new JPanel();
+	JLabel jLabel1 = new JLabel();
+	JTextPane txtDescriptionToAppend = new JTextPane();
+	BorderLayout borderLayout3 = new BorderLayout();
+	private JLabel jLabel2;
+	//private JTextArea jTextArea_LogMsg;
+	//private JTextPane jTextPane1_log;
+    protected JTextArea jTextPane1_log;
 
-  public EmbvidSendFeedbackDialog(Frame frame, String title, boolean modal) {
-    super(frame, title, modal);
-    try {
-      jbInit();
+	public EmbvidSendFeedbackDialog(Frame frame, String title, boolean modal) {
+		super(frame, title, modal);
+		try {
+			jbInit();
 
-      EmbvidFrame fd = (EmbvidFrame)frame;
-      this.apiContext = fd.getApiContext();
-    }
-    catch(Exception ex) {
-      ex.printStackTrace();
-    }
-  }
+			EmbvidFrame fd = (EmbvidFrame) frame;
+			this.apiContext = fd.getApiContext();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
 
-  public EmbvidSendFeedbackDialog() {
-    this(null, "", false);
-  }
+	public EmbvidSendFeedbackDialog() {
+		this(null, "", false);
+	}
 
-  private void jbInit() throws Exception {
-    panel1.setLayout(borderLayout1);
-    jPanel1.setLayout(borderLayout2);
-    btnCallAddToItemDescription.setText("AddToItemDescription");
-    btnCallAddToItemDescription.addActionListener(new EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(this));
-    jLabel1.setPreferredSize(new Dimension(60, 15));
-    jLabel1.setText("Item ID");
-    jLabel2.setPreferredSize(new Dimension(60, 15));
-    jLabel2.setText("Description");
-    txtDescriptionToAppend.setPreferredSize(new Dimension(200, 100));
-    jPanel4.setLayout(borderLayout3);
-    txtItemID.setMinimumSize(new Dimension(6, 21));
-    txtItemID.setPreferredSize(new Dimension(205, 21));
-    txtItemID.setText("");
-    jPanel5.setPreferredSize(new Dimension(149, 40));
-    jPanel6.setMinimumSize(new Dimension(52, 31));
-    jPanel6.setPreferredSize(new Dimension(280, 35));
-    getContentPane().add(panel1);
-    panel1.add(jPanel1,  BorderLayout.NORTH);
-    panel1.add(jPanel2,  BorderLayout.CENTER);
-    panel1.add(jPanel3, BorderLayout.SOUTH);
-    jPanel1.add(jPanel4,  BorderLayout.NORTH);
-    jPanel4.add(jPanel6,  BorderLayout.NORTH);
-    jPanel6.add(jLabel1, null);
-    jPanel6.add(txtItemID, null);
-    jPanel4.add(jPanel7, BorderLayout.CENTER);
-    jPanel7.add(jLabel2, null);
-    jPanel7.add(jScrollPane1, null);
-    jScrollPane1.getViewport().add(txtDescriptionToAppend, null);
-    jPanel1.add(jPanel5, BorderLayout.CENTER);
-    jPanel5.add(btnCallAddToItemDescription, null);
-    this.setSize(new Dimension(300, 210));
-    this.setResizable(false);
-  }
+	private void jbInit() throws Exception {
+		panel1.setLayout(borderLayout1);
+		jPanel1.setLayout(borderLayout2);
+		btnCallAddToItemDescription.setText("Leave Feedback");
+		btnCallAddToItemDescription
+				.addActionListener(new EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(
+						this));
+		jLabel1.setPreferredSize(new java.awt.Dimension(128, 15));
+		jLabel1.setText("Feedback Message");
+		txtDescriptionToAppend
+				.setPreferredSize(new java.awt.Dimension(318, 37));
+		jPanel4.setLayout(borderLayout3);
+		jPanel5.setPreferredSize(new Dimension(149, 40));
+		jPanel6.setMinimumSize(new Dimension(52, 31));
+		jPanel6.setPreferredSize(new java.awt.Dimension(354, 23));
+		getContentPane().add(panel1);
+		panel1.add(jPanel1, BorderLayout.NORTH);
+		panel1.add(jPanel3, BorderLayout.SOUTH);
+		{
+			//jTextArea_LogMsg = new JTextArea();
+			//jPanel3.add(jTextArea_LogMsg);
+			//jTextArea_LogMsg.setText(" 111  ");
+			//jTextArea_LogMsg.setPreferredSize(new java.awt.Dimension(345, 101));
+		}
+		panel1.add(jPanel2, BorderLayout.CENTER);
+		jPanel2.setPreferredSize(new java.awt.Dimension(339, 22));
+		{
+			jLabel2 = new JLabel();
+			jPanel2.add(jLabel2);
+			jLabel2.setText("Log");
+		}
+		{
+		/*	   textArea = new JTextArea(5, 20);
+		        textArea.setEditable(false);
+		        JScrollPane scrollPane = new JScrollPane(textArea);
+			*/
+			
+			
+			//jTextPane1_log = new JTextArea(306, 106);
+			jTextPane1_log = new JTextArea();
+			//jPanel3.add(jTextPane1_log);
+			jTextPane1_log.setText("    ");
+			jTextPane1_log.setEditable(false);
+			jTextPane1_log.setPreferredSize(new java.awt.Dimension(345, 129));
+			JScrollPane scrollPane = new JScrollPane(jTextPane1_log);
+			jPanel3.add(scrollPane);
+			
+		}
+		jPanel1.add(jPanel4, BorderLayout.NORTH);
+		jPanel4.add(jPanel6, BorderLayout.NORTH);
+		jPanel6.add(jLabel1, null);
+		jPanel4.add(jPanel7, BorderLayout.CENTER);
+		jPanel7.add(txtDescriptionToAppend);
+		jPanel1.add(jPanel5, BorderLayout.CENTER);
+		jPanel5.add(btnCallAddToItemDescription);
+		btnCallAddToItemDescription.setPreferredSize(new java.awt.Dimension(
+				125, 30));
+		updateFeeddbackMsg();
+		this.setSize(341, 310);
+		this.setResizable(false);
 
-  void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
-    try
-    {
-      AddToItemDescriptionCall api = new AddToItemDescriptionCall(this.apiContext);
+	}
 
-      String itemID = this.txtItemID.getText();
-      if( itemID.length() == 0 )
-        throw new SdkException("Please enter item ID.");
-      api.setItemID(itemID);
+	void updateFeeddbackMsg() {
+		try {
 
-      String desc = this.txtDescriptionToAppend.getText();
-      if( desc.length() == 0 )
-        throw new SdkException("Please enter description to be appended.");
-      api.setDescription(desc);
+			String xmlPath = CONFIG_XML_NAME;
+			Document doc = XmlUtil.createDomByPathname(xmlPath);
+			Node config = XmlUtil.getChildByName(doc, "Configuration");
+			if (config == null) {
+				JOptionPane.showMessageDialog(null, "No Config.xml file found",
+						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
 
-      api.addToItemDescription();
+			String feedbacktxt = XmlUtil.getChildString(config, "FeedbackText")
+					.trim();
+			txtDescriptionToAppend.setText(feedbacktxt);
 
-      ((EmbvidFrame)this.getParent()).showInfoMessage("The description has been appended successfully.");
-    }
-    catch(Exception ex)
-    {
-      String msg = ex.getClass().getName() + " : " + ex.getMessage();
-      ((EmbvidFrame)this.getParent()).showErrorMessage(msg);
-    }
-  }
-}
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "Config.xml file ERROR !!",
+					"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+	}
 
-class EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter implements java.awt.event.ActionListener {
-	EmbvidSendFeedbackDialog adaptee;
+	void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
+		
+		/*
+		jTextPane1_log.append("Feedback for " +  "sent...");
+		jTextPane1_log.selectAll();
 
-	EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(EmbvidSendFeedbackDialog adaptee) {
-    this.adaptee = adaptee;
-  }
-  public void actionPerformed(ActionEvent e) {
-    adaptee.btnDialogSendFeedback_actionPerformed(e);
-  }
+        //Make sure the new text is visible, even if there
+        //was a selection in the text area.
+		jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
+		*/
+		//if(false)
+		//{
+		
+		try {
+			AddToItemDescriptionCall api = new AddToItemDescriptionCall(
+					this.apiContext);
+
+			String feedbackTxt = this.txtDescriptionToAppend.getText();
+			if (feedbackTxt.length() == 0) {
+				throw new SdkException("Please enter Feedback Text Msg.");
+			}
+
+			BuyerRecord db = new BuyerRecord();
+
+			for(int i=0; i<db.getCount(); i++)
+			{
+				if(i > 34)
+				{
+					System.out.println("debug\n");
+					System.out.println("need to debug\n");
+				}
+				String BuyerID = db.getBuyerID(i);
+				
+				String OrderId = db.getOrderId(i);
+
+				String[] parts = OrderId.split("-");
+				String ItemId = null;
+				String TransactionId = null;
+				
+				if(parts.length == 1){
+					ItemId = parts[0]; 
+				}else if(parts.length == 2){
+					ItemId = parts[0];
+					TransactionId = parts[1];
+				}
+
+				//String UserId = (String) table.getModel().getValueAt(i,
+				//		BUYER_ID);
+				//String[] part1 = UserId.split("\n");
+				//String targetUser = part1[0];
+
+				try {
+					LeaveFeedbackCall feedbackapi = new LeaveFeedbackCall(
+							this.apiContext);
+
+					FeedbackDetailType fd = new FeedbackDetailType();
+					fd.setItemID(ItemId);
+					fd.setCommentText(feedbackTxt);
+					fd.setCommentType(CommentTypeCodeType.POSITIVE);
+
+					feedbackapi.setTransactionID(TransactionId);
+
+					feedbackapi.setTargetUser(BuyerID);
+					feedbackapi.setFeedbackDetail(fd);
+
+					feedbackapi.leaveFeedback();
+
+					AbstractResponseType resp = feedbackapi
+							.getResponseObject();
+					Date dt = resp.getTimestamp().getTime();
+					System.out.println("Feedback for ("+i+" )" + BuyerID + ": "
+							+ resp.getAck().value() + " Time: "
+							+ eBayUtil.toAPITimeString(dt));
+					
+					db.updateRecord(OrderId);
+					
+					
+					jTextPane1_log.append("Feedback for " + BuyerID + " sent... ++++\n");
+					jTextPane1_log.selectAll();
+
+			        //Make sure the new text is visible, even if there
+			        //was a selection in the text area.
+					jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
+					
+				} catch (Exception ex1) {
+
+					//JOptionPane.showMessageDialog(null, "Feedback fail ("
+					//		+ ex1.getMessage() + ")", "Feedback Fail!! ",
+					//		JOptionPane.INFORMATION_MESSAGE);
+					//db.updateRecord(OrderId);
+					System.out.println("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
+					jTextPane1_log.append("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
+					jTextPane1_log.selectAll();
+
+			        //Make sure the new text is visible, even if there
+			        //was a selection in the text area.
+					jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
+				}
+				
+			}
+
+		} catch (Exception ex) {
+			String msg = ex.getClass().getName() + " : " + ex.getMessage();
+			((EmbvidFrame) this.getParent()).showErrorMessage(msg);
+		}
+		//}
+	}
+
+	class EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter
+			implements java.awt.event.ActionListener {
+		EmbvidSendFeedbackDialog adaptee;
+
+		EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter(
+				EmbvidSendFeedbackDialog adaptee) {
+			this.adaptee = adaptee;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			adaptee.btnDialogSendFeedback_actionPerformed(e);
+		}
+	}
+
+		class BuyerRecord {
+			Connection con;
+
+			String db_url;
+			String db_user;
+			String db_pass;
+			
+			ArrayList<String> lstBuyerId;
+			ArrayList<String> lstBuyerEmail;
+			ArrayList<Integer> lstRowId;
+			ArrayList<String> lstOrderId;
+			
+			int totalRecord = 0;
+			
+			public int getCount()
+			{
+				return totalRecord;
+			}
+			
+			public String getBuyerID(int idx)
+			{
+				return lstBuyerId.get(idx).toString();
+			}
+			
+			public String getBuyerEmail(int idx)
+			{
+				return lstBuyerEmail.get(idx).toString();
+			}
+			
+			public String getOrderId(int idx)
+			{
+				return lstOrderId.get(idx).toString();
+			}
+			
+			public void updateRecord(String orderID)
+			{
+				Statement st;
+				try {
+					st = con.createStatement();
+				
+				
+				String sql = "UPDATE test1db.EMBVID_ORDERS5 SET Feedback='true' WHERE EMBVID_ORDERS5.OrderID='"
+						+ orderID + "'";
+
+				st.executeUpdate(sql);
+				st.close();
+				} catch (SQLException e) {
+					JOptionPane.showMessageDialog(null, e.getMessage(),
+							"Exception: ", JOptionPane.ERROR_MESSAGE);
+
+				}
+			}
+			
+			public BuyerRecord() {
+				// Connection con = null;
+				
+				Statement st = null;
+				ResultSet rs = null;
+				try {
+					String xmlPath = CONFIG_XML_NAME;
+					Document doc = XmlUtil.createDomByPathname(xmlPath);
+					Node config = XmlUtil.getChildByName(doc, "Configuration");
+					if (config == null) {
+						JOptionPane.showMessageDialog(null,
+								"No Config.xml file found", "InfoBox: "
+										+ "Initilizing SQL Fails  !!",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+
+					db_url = XmlUtil.getChildString(config, "DB_URL").trim();
+					db_user = XmlUtil.getChildString(config, "DB_USER").trim();
+					db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
+
+					con = DriverManager.getConnection(db_url, db_user, db_pass);
+					st = con.createStatement();
+					
+					
+					
+					String sql = "SELECT ID, OrderID, BuyerID, BuyerEmail "
+							+ "FROM test1db.EMBVID_ORDERS5 "
+							+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";
+
+					rs = st.executeQuery(sql);
+					
+					lstBuyerId = new ArrayList<String>();
+					lstBuyerEmail = new ArrayList<String>();
+					lstOrderId = new ArrayList<String>();
+					
+					while (rs.next()) {
+						try {
+							lstBuyerId.add(rs.getString("BuyerID"));
+							lstBuyerEmail.add(rs.getString("BuyerEmail"));
+							//lstRowId.add(rs.getInt("ID"));
+							lstOrderId.add(rs.getString("OrderID"));
+							totalRecord++;
+						} catch (Exception ex) {
+							JOptionPane.showMessageDialog(null, ex.getMessage(),
+									"Exception: ",
+									JOptionPane.ERROR_MESSAGE);
+						}
+					}
+					st.close();
+				} catch (SQLException ex) {
+
+					System.out.println("Exception :\n" + ex.getMessage());
+					JOptionPane.showMessageDialog(null, ex.getMessage(),
+							"Exception: ", JOptionPane.INFORMATION_MESSAGE);
+
+				} catch (SAXException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (ParserConfigurationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (TransformerException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					try {
+						if (rs != null) {
+							rs.close();
+						}
+						if (st != null) {
+							st.close();
+						}
+						/*
+						 * if (con != null) { con.close(); }
+						 */
+
+					} catch (SQLException ex) {
+
+						System.out.println("Exception :\n" + ex.getMessage());
+						JOptionPane.showMessageDialog(null, ex.getMessage(),
+								"Exception: " + ex.getMessage(),
+								JOptionPane.INFORMATION_MESSAGE);
+					}
+				}
+
+				// data = new String[] { "" + (counter++),
+				// "" + System.currentTimeMillis(), "Reserved" };
+			}
+		}
+	
 }
