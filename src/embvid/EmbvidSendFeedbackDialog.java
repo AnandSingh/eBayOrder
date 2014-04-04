@@ -99,7 +99,6 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 	JPanel panel1 = new JPanel();
 	BorderLayout borderLayout1 = new BorderLayout();
 	JPanel jPanel1 = new JPanel();
-	JPanel jPanel2 = new JPanel();
 	JPanel jPanel3 = new JPanel();
 	BorderLayout borderLayout2 = new BorderLayout();
 	JPanel jPanel4 = new JPanel();
@@ -110,7 +109,6 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 	JLabel jLabel1 = new JLabel();
 	JTextPane txtDescriptionToAppend = new JTextPane();
 	BorderLayout borderLayout3 = new BorderLayout();
-	private JLabel jLabel2;
 	//private JTextArea jTextArea_LogMsg;
 	//private JTextPane jTextPane1_log;
     protected JTextArea jTextPane1_log;
@@ -140,43 +138,30 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 						this));
 		jLabel1.setPreferredSize(new java.awt.Dimension(128, 15));
 		jLabel1.setText("Feedback Message");
-		txtDescriptionToAppend
-				.setPreferredSize(new java.awt.Dimension(318, 37));
+		txtDescriptionToAppend.setPreferredSize(new java.awt.Dimension(348, 37));
 		jPanel4.setLayout(borderLayout3);
 		jPanel5.setPreferredSize(new Dimension(149, 40));
 		jPanel6.setMinimumSize(new Dimension(52, 31));
 		jPanel6.setPreferredSize(new java.awt.Dimension(354, 23));
-		getContentPane().add(panel1);
 		panel1.add(jPanel1, BorderLayout.NORTH);
 		panel1.add(jPanel3, BorderLayout.SOUTH);
+		jPanel3.setPreferredSize(new java.awt.Dimension(402, 169));
 		{
-			//jTextArea_LogMsg = new JTextArea();
-			//jPanel3.add(jTextArea_LogMsg);
-			//jTextArea_LogMsg.setText(" 111  ");
-			//jTextArea_LogMsg.setPreferredSize(new java.awt.Dimension(345, 101));
-		}
-		panel1.add(jPanel2, BorderLayout.CENTER);
-		jPanel2.setPreferredSize(new java.awt.Dimension(339, 22));
-		{
-			jLabel2 = new JLabel();
-			jPanel2.add(jLabel2);
-			jLabel2.setText("Log");
-		}
-		{
-		/*	   textArea = new JTextArea(5, 20);
-		        textArea.setEditable(false);
-		        JScrollPane scrollPane = new JScrollPane(textArea);
-			*/
 			
-			
-			//jTextPane1_log = new JTextArea(306, 106);
 			jTextPane1_log = new JTextArea();
-			//jPanel3.add(jTextPane1_log);
-			jTextPane1_log.setText("    ");
+			jTextPane1_log.setSize(new Dimension(381, 147));
+			
+			jTextPane1_log.setLineWrap(true);
 			jTextPane1_log.setEditable(false);
-			jTextPane1_log.setPreferredSize(new java.awt.Dimension(345, 129));
-			JScrollPane scrollPane = new JScrollPane(jTextPane1_log);
-			jPanel3.add(scrollPane);
+			jTextPane1_log.setVisible(true);
+			
+
+			JScrollPane scroll = new JScrollPane (jTextPane1_log);
+			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			//scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			jPanel3.add(scroll, BorderLayout.CENTER);
+			scroll.setPreferredSize(new java.awt.Dimension(393, 159));
+			//scroll.setPreferredSize(new java.awt.Dimension(397, 244));
 			
 		}
 		jPanel1.add(jPanel4, BorderLayout.NORTH);
@@ -188,9 +173,12 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 		jPanel5.add(btnCallAddToItemDescription);
 		btnCallAddToItemDescription.setPreferredSize(new java.awt.Dimension(
 				125, 30));
-		updateFeeddbackMsg();
-		this.setSize(341, 310);
+		
+		this.setSize(417, 316);
 		this.setResizable(false);
+		getContentPane().add(panel1, BorderLayout.NORTH);
+
+		updateFeeddbackMsg();
 
 	}
 
@@ -216,20 +204,9 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			return;
 		}
 	}
-
-	void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
-		
-		/*
-		jTextPane1_log.append("Feedback for " +  "sent...");
-		jTextPane1_log.selectAll();
-
-        //Make sure the new text is visible, even if there
-        //was a selection in the text area.
-		jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
-		*/
-		//if(false)
-		//{
-		
+	
+	void ProcessFeedback()
+	{
 		try {
 			AddToItemDescriptionCall api = new AddToItemDescriptionCall(
 					this.apiContext);
@@ -243,11 +220,6 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 
 			for(int i=0; i<db.getCount(); i++)
 			{
-				if(i > 34)
-				{
-					System.out.println("debug\n");
-					System.out.println("need to debug\n");
-				}
 				String BuyerID = db.getBuyerID(i);
 				
 				String OrderId = db.getOrderId(i);
@@ -262,11 +234,6 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 					ItemId = parts[0];
 					TransactionId = parts[1];
 				}
-
-				//String UserId = (String) table.getModel().getValueAt(i,
-				//		BUYER_ID);
-				//String[] part1 = UserId.split("\n");
-				//String targetUser = part1[0];
 
 				try {
 					LeaveFeedbackCall feedbackapi = new LeaveFeedbackCall(
@@ -295,7 +262,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 					
 					
 					jTextPane1_log.append("Feedback for " + BuyerID + " sent... ++++\n");
-					jTextPane1_log.selectAll();
+					//jTextPane1_log.selectAll();
 
 			        //Make sure the new text is visible, even if there
 			        //was a selection in the text area.
@@ -309,12 +276,18 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 					//db.updateRecord(OrderId);
 					System.out.println("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
 					jTextPane1_log.append("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
-					jTextPane1_log.selectAll();
+					//jTextPane1_log.selectAll();
 
 			        //Make sure the new text is visible, even if there
 			        //was a selection in the text area.
 					jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
 				}
+				
+				try {
+	    		    Thread.sleep(50);
+	    		} catch(InterruptedException ex) {
+	    		    Thread.currentThread().interrupt();
+	    		}
 				
 			}
 
@@ -322,7 +295,17 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			String msg = ex.getClass().getName() + " : " + ex.getMessage();
 			((EmbvidFrame) this.getParent()).showErrorMessage(msg);
 		}
-		//}
+
+	}
+
+	void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
+		/* Start the thread to processs the feedback*/
+		new Thread() {
+			public void run() {
+				System.out.println("Start Update Table thread");
+				ProcessFeedback();
+			}
+		}.start();
 	}
 
 	class EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter
@@ -378,8 +361,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				Statement st;
 				try {
 					st = con.createStatement();
-				
-				
+
 				String sql = "UPDATE test1db.EMBVID_ORDERS5 SET Feedback='true' WHERE EMBVID_ORDERS5.OrderID='"
 						+ orderID + "'";
 
