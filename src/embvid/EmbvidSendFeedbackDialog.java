@@ -39,6 +39,7 @@ package embvid;
  * @version 1.0
  */
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -49,7 +50,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -109,9 +113,9 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 	JLabel jLabel1 = new JLabel();
 	JTextPane txtDescriptionToAppend = new JTextPane();
 	BorderLayout borderLayout3 = new BorderLayout();
-	//private JTextArea jTextArea_LogMsg;
-	//private JTextPane jTextPane1_log;
-    protected JTextArea jTextPane1_log;
+	// private JTextArea jTextArea_LogMsg;
+	// private JTextPane jTextPane1_log;
+	protected JTextArea jTextPane1_log;
 
 	public EmbvidSendFeedbackDialog(Frame frame, String title, boolean modal) {
 		super(frame, title, modal);
@@ -138,7 +142,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 						this));
 		jLabel1.setPreferredSize(new java.awt.Dimension(128, 15));
 		jLabel1.setText("Feedback Message");
-		txtDescriptionToAppend.setPreferredSize(new java.awt.Dimension(348, 37));
+		txtDescriptionToAppend.setPreferredSize(new java.awt.Dimension(457, 37));
 		jPanel4.setLayout(borderLayout3);
 		jPanel5.setPreferredSize(new Dimension(149, 40));
 		jPanel6.setMinimumSize(new Dimension(52, 31));
@@ -147,22 +151,22 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 		panel1.add(jPanel3, BorderLayout.SOUTH);
 		jPanel3.setPreferredSize(new java.awt.Dimension(402, 169));
 		{
-			
+
 			jTextPane1_log = new JTextArea();
 			jTextPane1_log.setSize(new Dimension(381, 147));
-			
+
 			jTextPane1_log.setLineWrap(true);
 			jTextPane1_log.setEditable(false);
 			jTextPane1_log.setVisible(true);
-			
+			//jTextPane1_log.setPreferredSize(new java.awt.Dimension(119, 156));
 
-			JScrollPane scroll = new JScrollPane (jTextPane1_log);
+			JScrollPane scroll = new JScrollPane(jTextPane1_log);
 			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			//scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+			// scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 			jPanel3.add(scroll, BorderLayout.CENTER);
-			scroll.setPreferredSize(new java.awt.Dimension(393, 159));
-			//scroll.setPreferredSize(new java.awt.Dimension(397, 244));
-			
+			scroll.setPreferredSize(new java.awt.Dimension(466, 159));
+			// scroll.setPreferredSize(new java.awt.Dimension(397, 244));
+
 		}
 		jPanel1.add(jPanel4, BorderLayout.NORTH);
 		jPanel4.add(jPanel6, BorderLayout.NORTH);
@@ -173,8 +177,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 		jPanel5.add(btnCallAddToItemDescription);
 		btnCallAddToItemDescription.setPreferredSize(new java.awt.Dimension(
 				125, 30));
-		
-		this.setSize(417, 316);
+
+		this.setSize(488, 317);
 		this.setResizable(false);
 		getContentPane().add(panel1, BorderLayout.NORTH);
 
@@ -204,10 +208,19 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			return;
 		}
 	}
-	
-	void ProcessFeedback()
-	{
+
+	void ProcessFeedback() {
+		
 		try {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			/*
+			 * Get the current time The current will be compared with the
+			 * OrderDate for validity to leave feedback
+			 */
+			new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+			Calendar to = GregorianCalendar.getInstance();
+			long currentTime = to.getTimeInMillis();
+
 			AddToItemDescriptionCall api = new AddToItemDescriptionCall(
 					this.apiContext);
 
@@ -218,19 +231,27 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 
 			BuyerRecord db = new BuyerRecord();
 
-			for(int i=0; i<db.getCount(); i++)
+			/*
+			 * No record to update the Feedback*/
+			if(db.getCount() == 0)
 			{
+				JOptionPane.showMessageDialog(null, "No Record Found to update Feedback !!",
+						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+			
+			for (int i = 0; i < db.getCount(); i++) {
 				String BuyerID = db.getBuyerID(i);
-				
+
 				String OrderId = db.getOrderId(i);
 
 				String[] parts = OrderId.split("-");
 				String ItemId = null;
 				String TransactionId = null;
-				
-				if(parts.length == 1){
-					ItemId = parts[0]; 
-				}else if(parts.length == 2){
+
+				if (parts.length == 1) {
+					ItemId = parts[0];
+				} else if (parts.length == 2) {
 					ItemId = parts[0];
 					TransactionId = parts[1];
 				}
@@ -251,58 +272,86 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 
 					feedbackapi.leaveFeedback();
 
-					AbstractResponseType resp = feedbackapi
-							.getResponseObject();
+					AbstractResponseType resp = feedbackapi.getResponseObject();
 					Date dt = resp.getTimestamp().getTime();
-					System.out.println("Feedback for ("+i+" )" + BuyerID + ": "
-							+ resp.getAck().value() + " Time: "
+					System.out.println("Feedback for (" + i + " )" + BuyerID
+							+ ": " + resp.getAck().value() + " Time: "
 							+ eBayUtil.toAPITimeString(dt));
-					
-					db.updateRecord(OrderId);
-					
-					
-					jTextPane1_log.append("Feedback for " + BuyerID + " sent... ++++\n");
-					//jTextPane1_log.selectAll();
 
-			        //Make sure the new text is visible, even if there
-			        //was a selection in the text area.
-					jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
-					
+					db.updateFeedbackRecord(OrderId, "true");
+
+					jTextPane1_log.append("Feedback for " + BuyerID
+							+ " sent... ++++\n");
+
+					/*
+					 * Make sure the new text is visible, even if there was a
+					 * selection in the text area.
+					 */
+					jTextPane1_log.setCaretPosition(jTextPane1_log
+							.getDocument().getLength());
+					jTextPane1_log.setAutoscrolls(true);
+
 				} catch (Exception ex1) {
+					/*
+					 * check if it's failed because it's an too old order, then
+					 * do an proxy-true since this can't be updated any longer
+					 */
 
-					//JOptionPane.showMessageDialog(null, "Feedback fail ("
-					//		+ ex1.getMessage() + ")", "Feedback Fail!! ",
-					//		JOptionPane.INFORMATION_MESSAGE);
-					//db.updateRecord(OrderId);
-					System.out.println("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
-					jTextPane1_log.append("Feedback for ("+i+") " + BuyerID + " fail...+++\n");
-					//jTextPane1_log.selectAll();
+					long OrderDate = db.getOrderDate(i);
+					/* get the time difference from Order date */
+					long timeDifference = currentTime - OrderDate;
 
-			        //Make sure the new text is visible, even if there
-			        //was a selection in the text area.
-					jTextPane1_log.setCaretPosition(jTextPane1_log.getDocument().getLength());
+					long daysInBetween = timeDifference / (24 * 60 * 60 * 1000);
+
+					/*
+					 * if order date is old than 20 days then it's late to
+					 * update the feedback
+					 */
+					if (daysInBetween >= 20) {
+						/*
+						 * do an proxy update to database so it won't be invoked
+						 * later for updates
+						 */
+						db.updateFeedbackRecord(OrderId, "proxy-true");
+						jTextPane1_log.append("Feedback for (" + i + ") "
+								+ BuyerID + " fail... [expired:"+daysInBetween+ "days]\n");
+					} else {
+						jTextPane1_log.append("Feedback for (" + i + ") "
+								+ BuyerID + " fail... [unknow:"+daysInBetween+"days]\n");
+					}
+					/*
+					 * Make sure the new text is visible, even if there was a
+					 * selection in the text area.
+					 */
+					jTextPane1_log.setCaretPosition(jTextPane1_log
+							.getDocument().getLength());
 				}
-				
+
 				try {
-	    		    Thread.sleep(50);
-	    		} catch(InterruptedException ex) {
-	    		    Thread.currentThread().interrupt();
-	    		}
-				
+					Thread.sleep(5);
+				} catch (InterruptedException ex) {
+					Thread.currentThread().interrupt();
+				}
+
 			}
+			/*Show dialog box when update feedback is finished */
+			JOptionPane.showMessageDialog(null, "Update Feedback done !!",
+					"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (Exception ex) {
 			String msg = ex.getClass().getName() + " : " + ex.getMessage();
 			((EmbvidFrame) this.getParent()).showErrorMessage(msg);
+		}finally {
+			this.setCursor(Cursor.getDefaultCursor());
 		}
 
 	}
 
 	void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
-		/* Start the thread to processs the feedback*/
+		/* Start the thread to process the feedback */
 		new Thread() {
 			public void run() {
-				System.out.println("Start Update Table thread");
+				System.out.println("Start Update Feedback thread");
 				ProcessFeedback();
 			}
 		}.start();
@@ -322,150 +371,151 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 		}
 	}
 
-		class BuyerRecord {
-			Connection con;
+	class BuyerRecord {
+		Connection con;
 
-			String db_url;
-			String db_user;
-			String db_pass;
-			
-			ArrayList<String> lstBuyerId;
-			ArrayList<String> lstBuyerEmail;
-			ArrayList<Integer> lstRowId;
-			ArrayList<String> lstOrderId;
-			
-			int totalRecord = 0;
-			
-			public int getCount()
-			{
-				return totalRecord;
-			}
-			
-			public String getBuyerID(int idx)
-			{
-				return lstBuyerId.get(idx).toString();
-			}
-			
-			public String getBuyerEmail(int idx)
-			{
-				return lstBuyerEmail.get(idx).toString();
-			}
-			
-			public String getOrderId(int idx)
-			{
-				return lstOrderId.get(idx).toString();
-			}
-			
-			public void updateRecord(String orderID)
-			{
-				Statement st;
-				try {
-					st = con.createStatement();
+		String db_url;
+		String db_user;
+		String db_pass;
 
-				String sql = "UPDATE test1db.EMBVID_ORDERS5 SET Feedback='true' WHERE EMBVID_ORDERS5.OrderID='"
+		long[] lstOrderdate;
+		ArrayList<String> lstBuyerId;
+		ArrayList<String> lstBuyerEmail;
+		ArrayList<Integer> lstRowId;
+		ArrayList<String> lstOrderId;
+
+		int totalRecord = 0;
+
+		public int getCount() {
+			return totalRecord;
+		}
+
+		public String getBuyerID(int idx) {
+			return lstBuyerId.get(idx).toString();
+		}
+
+		public String getBuyerEmail(int idx) {
+			return lstBuyerEmail.get(idx).toString();
+		}
+
+		public String getOrderId(int idx) {
+			return lstOrderId.get(idx).toString();
+		}
+
+		public long getOrderDate(int idx) {
+			return lstOrderdate[idx];
+		}
+
+		public void updateFeedbackRecord(String orderID, String updateStr) {
+			Statement st;
+			try {
+				st = con.createStatement();
+
+				String sql = "UPDATE test1db.EMBVID_ORDERS5 SET Feedback='"
+						+ updateStr + "' WHERE EMBVID_ORDERS5.OrderID='"
 						+ orderID + "'";
 
 				st.executeUpdate(sql);
 				st.close();
-				} catch (SQLException e) {
-					JOptionPane.showMessageDialog(null, e.getMessage(),
-							"Exception: ", JOptionPane.ERROR_MESSAGE);
+			} catch (SQLException e) {
+				JOptionPane.showMessageDialog(null, e.getMessage(),
+						"Exception: ", JOptionPane.ERROR_MESSAGE);
 
-				}
 			}
-			
-			public BuyerRecord() {
-				// Connection con = null;
-				
-				Statement st = null;
-				ResultSet rs = null;
+		}
+
+		public BuyerRecord() {
+			// Connection con = null;
+
+			Statement st = null;
+			ResultSet rs = null;
+			try {
+				String xmlPath = CONFIG_XML_NAME;
+				Document doc = XmlUtil.createDomByPathname(xmlPath);
+				Node config = XmlUtil.getChildByName(doc, "Configuration");
+				if (config == null) {
+					JOptionPane.showMessageDialog(null,
+							"No Config.xml file found", "InfoBox: "
+									+ "Initilizing SQL Fails  !!",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+
+				db_url = XmlUtil.getChildString(config, "DB_URL").trim();
+				db_user = XmlUtil.getChildString(config, "DB_USER").trim();
+				db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
+
+				con = DriverManager.getConnection(db_url, db_user, db_pass);
+				st = con.createStatement();
+
+				String sql = "SELECT ID, OrderDate, OrderID, BuyerID, BuyerEmail "
+						+ "FROM test1db.EMBVID_ORDERS5 "
+						+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";
+
+				rs = st.executeQuery(sql);
+
+				lstOrderdate = new long[20000];
+				lstBuyerId = new ArrayList<String>();
+				lstBuyerEmail = new ArrayList<String>();
+				lstOrderId = new ArrayList<String>();
+				totalRecord = 0;
+				while (rs.next()) {
+					try {
+						
+						lstOrderdate[totalRecord] = rs.getLong("OrderDate");
+						lstBuyerId.add(rs.getString("BuyerID"));
+						lstBuyerEmail.add(rs.getString("BuyerEmail"));
+						// lstRowId.add(rs.getInt("ID"));
+						lstOrderId.add(rs.getString("OrderID"));
+						totalRecord++;
+					} catch (Exception ex) {
+						JOptionPane.showMessageDialog(null, ex.getMessage(),
+								"Exception: ", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				st.close();
+			} catch (SQLException ex) {
+
+				System.out.println("Exception :\n" + ex.getMessage());
+				JOptionPane.showMessageDialog(null, ex.getMessage(),
+						"Exception: ", JOptionPane.INFORMATION_MESSAGE);
+
+			} catch (SAXException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ParserConfigurationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TransformerException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
 				try {
-					String xmlPath = CONFIG_XML_NAME;
-					Document doc = XmlUtil.createDomByPathname(xmlPath);
-					Node config = XmlUtil.getChildByName(doc, "Configuration");
-					if (config == null) {
-						JOptionPane.showMessageDialog(null,
-								"No Config.xml file found", "InfoBox: "
-										+ "Initilizing SQL Fails  !!",
-								JOptionPane.INFORMATION_MESSAGE);
-						return;
+					if (rs != null) {
+						rs.close();
 					}
-
-					db_url = XmlUtil.getChildString(config, "DB_URL").trim();
-					db_user = XmlUtil.getChildString(config, "DB_USER").trim();
-					db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
-
-					con = DriverManager.getConnection(db_url, db_user, db_pass);
-					st = con.createStatement();
-					
-					
-					
-					String sql = "SELECT ID, OrderID, BuyerID, BuyerEmail "
-							+ "FROM test1db.EMBVID_ORDERS5 "
-							+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";
-
-					rs = st.executeQuery(sql);
-					
-					lstBuyerId = new ArrayList<String>();
-					lstBuyerEmail = new ArrayList<String>();
-					lstOrderId = new ArrayList<String>();
-					
-					while (rs.next()) {
-						try {
-							lstBuyerId.add(rs.getString("BuyerID"));
-							lstBuyerEmail.add(rs.getString("BuyerEmail"));
-							//lstRowId.add(rs.getInt("ID"));
-							lstOrderId.add(rs.getString("OrderID"));
-							totalRecord++;
-						} catch (Exception ex) {
-							JOptionPane.showMessageDialog(null, ex.getMessage(),
-									"Exception: ",
-									JOptionPane.ERROR_MESSAGE);
-						}
+					if (st != null) {
+						st.close();
 					}
-					st.close();
+					/*
+					 * if (con != null) { con.close(); }
+					 */
+
 				} catch (SQLException ex) {
 
 					System.out.println("Exception :\n" + ex.getMessage());
 					JOptionPane.showMessageDialog(null, ex.getMessage(),
-							"Exception: ", JOptionPane.INFORMATION_MESSAGE);
-
-				} catch (SAXException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (ParserConfigurationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (TransformerException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} finally {
-					try {
-						if (rs != null) {
-							rs.close();
-						}
-						if (st != null) {
-							st.close();
-						}
-						/*
-						 * if (con != null) { con.close(); }
-						 */
-
-					} catch (SQLException ex) {
-
-						System.out.println("Exception :\n" + ex.getMessage());
-						JOptionPane.showMessageDialog(null, ex.getMessage(),
-								"Exception: " + ex.getMessage(),
-								JOptionPane.INFORMATION_MESSAGE);
-					}
+							"Exception: " + ex.getMessage(),
+							JOptionPane.INFORMATION_MESSAGE);
 				}
-
-				// data = new String[] { "" + (counter++),
-				// "" + System.currentTimeMillis(), "Reserved" };
 			}
+
+			// data = new String[] { "" + (counter++),
+			// "" + System.currentTimeMillis(), "Reserved" };
 		}
-	
+	}
+
 }
