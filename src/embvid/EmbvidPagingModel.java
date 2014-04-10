@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -83,6 +84,7 @@ import com.mysql.jdbc.ResultSetMetaData;
 class EmbvidPagingModel extends AbstractTableModel {
 
 	private static final long serialVersionUID = 1L;
+	private static final int PAGE_SIZE = 20;
 
 	public Class<String> getColumnClass(int columnIndex) {
 		return String.class;
@@ -108,14 +110,14 @@ class EmbvidPagingModel extends AbstractTableModel {
 	String db_user;
 	String db_pass;
 
-	public EmbvidPagingModel() {
-		this(20);
+	public EmbvidPagingModel(boolean view) {
+		this(PAGE_SIZE, view);
 	}
 
-	public EmbvidPagingModel(int size) {
+	public EmbvidPagingModel(int size, boolean view) {
 
 		pageSize = size;
-		data = new dbRecord();
+		data = new dbRecord(view);
 		// Do not fill the record fetch when it's required
 		// Fill our table with random data (from the Record() constructor).
 		// for (int i = 0; i < data.length; i++) {
@@ -135,7 +137,10 @@ class EmbvidPagingModel extends AbstractTableModel {
 	// Work only on the visible part of the table.
 	public Object getValueAt(int row, int col) {
 		int realRow = row + (pageOffset * pageSize);
-		return data.getValueAt(realRow, col);
+		if (realRow < data.getLength()) {
+			return data.getValueAt(realRow, col);
+		}
+		return null;
 	}
 
 	public String getColumnName(int col) {
@@ -251,6 +256,7 @@ class EmbvidPagingModel extends AbstractTableModel {
 	}
 }
 
+
 // Record.java
 // A simple data structure for use with the PagingModel demo.
 //
@@ -278,8 +284,12 @@ class dbRecord {
 	String db_url;
 	String db_user;
 	String db_pass;
+	
+	private boolean db_view = false;
 
-	public dbRecord() {
+	private ArrayList<Integer> id;// = new ArrayList<Integer>();
+
+	public dbRecord(boolean view) {
 		// Connection con = null;
 		Statement st = null;
 		ResultSet rs = null;
@@ -298,20 +308,33 @@ class dbRecord {
 			db_user = XmlUtil.getChildString(config, "DB_USER").trim();
 			db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
 
-			// String url = "jdbc:mysql://localhost:3306/test1db";
-			// String user = "test111";
-			// String password = "test222";
-
 			con = DriverManager.getConnection(db_url, db_user, db_pass);
 			st = con.createStatement();
+			
+			/* Save the view to be used in getValue */
+			db_view = view;
+			/* View is true then we need to display only the not shipped items
+			 * else show all the data base */
+			if (view == true) {
+				rs = st.executeQuery("SELECT * "
+						+ "FROM test1db.EMBVID_ORDERS5 "
+						+ "WHERE OrderStatus = 'COMPLETE' "
+						+ "AND ShippingStatus = 'NOT-SHIPPED'");
+				maxRow = 0;
+				this.id = new ArrayList<Integer>();
+				while (rs.next()) {
+					int id = rs.getInt("ID");
+					this.id.add(id);
+					System.out.println("ID: " + id);
+					maxRow++;
+				}
+			} else {
 
-			// TODO: get the total roe count in SQL database
-			rs = st.executeQuery("SELECT * FROM test1db.EMBVID_ORDERS5");
-
-			rs = st.executeQuery("SELECT COUNT(*) FROM test1db.EMBVID_ORDERS5");
-
-			rs.next();
-			maxRow = rs.getInt(1);
+				rs = st.executeQuery("SELECT * FROM test1db.EMBVID_ORDERS5");
+				rs = st.executeQuery("SELECT COUNT(*) FROM test1db.EMBVID_ORDERS5");
+				rs.next();
+				maxRow = rs.getInt(1);
+			}
 
 			System.out.println("Max Row: " + maxRow);
 
@@ -370,7 +393,17 @@ class dbRecord {
 
 		try {
 
-			String selRow = String.format("%d", row); 
+			String selRow;
+			
+			/* if db_view is true then only show the data from NOT-SHIPPED
+			 * else show all */
+			if(db_view == true)
+			{
+				selRow = String.format("%d", this.id.get(row - 1));
+			}else
+			{
+				selRow = String.format("%d", row);
+			}
 
 			String selCol = "";
 			if (col == 0) {
@@ -385,7 +418,6 @@ class dbRecord {
 				selCol = " " + headers[col] + " ";
 			}
 
-
 			Statement st = con.createStatement();
 
 			String sql = "SELECT" + selCol + "FROM test1db.EMBVID_ORDERS5 "
@@ -396,7 +428,7 @@ class dbRecord {
 			while (rs.next()) {
 				switch (col) {
 				case 0:
-					long longDate = rs.getLong("OrderDate"); 
+					long longDate = rs.getLong("OrderDate");
 					DateFormat formatter = new SimpleDateFormat(
 							"dd/MM/yyyy HH:mm:ss");
 					data = formatter.format(new Date(longDate));

@@ -756,6 +756,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	void btnSendMail_actionPerformed(ActionEvent e) {
 
 		createHtml();
+		
+		if(false) {
 
 		String tmp_email = null;
 		String tmp_pw = null;
@@ -866,6 +868,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 					"MessagingException : " + me.getMessage(), "Exception: ",
 					JOptionPane.ERROR_MESSAGE);
 			// throw new RuntimeException(me);
+		}
 		}
 	}
 
@@ -1053,7 +1056,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			}
 		};
 
-		EmbvidPagingModel pm = new EmbvidPagingModel();
+		boolean view = jCheckBox.isSelected();
+		EmbvidPagingModel pm = new EmbvidPagingModel(view);
 		JTable jt = new JTable(pm);
 
 		TableRowSorter<EmbvidPagingModel> sorter = new TableRowSorter<EmbvidPagingModel>(
@@ -1590,6 +1594,9 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 	void createHtml() {
 
+		/*remove after testing/
+		 */
+		fileName = "test";
 		try {
 			Statement db_st = db_con.createStatement();
 
@@ -1608,6 +1615,66 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			String htmlBodyS = "<body>\n";
 			String htmlBodyE = "</body>\n";
 			String htmlHeaderE = "</html>\n";
+			
+			String htmlHead = 
+			"<html>\n"+ 
+			"<head>\n"+ 
+			    "<style type=\"text/css\" media=\"all\">\n"+
+				    "body {\n"+
+			        "margin: 0;\n"+
+			        "padding: 0;\n"+
+			        "background-color: #FAFAFA;\n"+
+			        "font: 12pt \"Tahoma\";\n"+
+			    "}\n"+
+			    "* {\n"+
+			        "box-sizing: border-box;\n"+
+			        "-moz-box-sizing: border-box;\n"+
+			    "}\n"+
+			    ".page {\n"+
+			        "width: 21cm;\n"+
+			        "min-height: 29.7cm;\n"+
+			        "padding: .1cm;\n"+
+			        "margin: 1cm auto;\n"+
+			        "border: 1px #D3D3D3 solid;\n"+
+			        "border-radius: 5px;\n"+
+			        "background: white;\n"+
+			        "box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);\n"+
+			    "}\n"+
+			    ".subpage {\n"+
+			        "padding: .1cm;\n"+
+			        "border: 5px red solid;\n"+
+			        "height: 237mm;\n"+
+			        "outline: 2cm #FFEAEA solid;\n"+
+			    "}\n"+
+			    
+			    "@page {\n"+
+			        "size: A4;\n"+
+			        "margin: 0;\n"+
+			    "}\n"+
+			    "@media print {\n"+
+			        ".page {\n"+
+			            "margin: 0;\n"+
+			            "border: initial;\n"+
+			            "border-radius: initial;\n"+
+			            "width: initial;\n"+
+			            "min-height: initial;\n"+
+			            "box-shadow: initial;\n"+
+			            "background: initial;\n"+
+			            "page-break-after: always;\n"+
+			        "}\n"+
+			    "}\n"+
+			    "</style>\n"+
+			"</head>\n";
+			
+			String htmlDivS = 
+			"<div class=\"book\">\n"+
+		    "<div class=\"page\">\n"+
+		        "<div class=\"subpage\">\n";
+			
+			String htmlDivE = 
+					"</div>\n"+    
+					"</div>\n"+
+					"</div>\n";
 
 			File fileHtml = new File(fileName + ".html");
 
@@ -1618,11 +1685,14 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 			FileWriter fwHtml = new FileWriter(fileHtml.getAbsoluteFile());
 			BufferedWriter bwHtml = new BufferedWriter(fwHtml);
-			bwHtml.write(htmlHeader);
-			bwHtml.write(htmlHeadS);
-			bwHtml.write(htmlMeta);
-			bwHtml.write(htmlTitle);
-			bwHtml.write(htmlHeadE);
+			
+			bwHtml.write(htmlHead);
+			bwHtml.write(htmlDivS);
+			//bwHtml.write(htmlHeader);
+			//bwHtml.write(htmlHeadS);
+			//bwHtml.write(htmlMeta);
+			//bwHtml.write(htmlTitle);
+			//bwHtml.write(htmlHeadE);
 
 			bwHtml.write(htmlBodyS);
 
@@ -1640,6 +1710,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				bwHtml.write("</tr></table>\n");
 				bwHtml.write("</p><br>\n");
 			}
+			bwHtml.write(htmlDivE);
 			bwHtml.write(htmlBodyE);
 
 			bwHtml.write(htmlHeaderE);
@@ -1660,8 +1731,11 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	}
 
 	void btnUpdate_actionPerformed(ActionEvent e) {
+		//TODO: whole logic need to changed. as of now comment the code
+		
+		if(false) {
 		try {
-
+			
 			if (table == null) {
 				JOptionPane.showMessageDialog(this, "No Table Found !!");
 			}
@@ -1762,6 +1836,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			}
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this, "No Table Found !!");
+		}
 		}
 	}
 
