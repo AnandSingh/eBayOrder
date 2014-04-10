@@ -315,11 +315,11 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			customInit();
 
 			InitSqlDatabase();
-			
+
 			new Thread() {
 				public void run() {
-					
-					//GetOrder();
+
+					// GetOrder();
 				}
 			}.start();
 
@@ -756,119 +756,124 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	void btnSendMail_actionPerformed(ActionEvent e) {
 
 		createHtml();
-		
-		if(false) {
 
-		String tmp_email = null;
-		String tmp_pw = null;
-		String smtp_host = null;
-		String smtp_port = null;
-		String to_email = null;
+		if (false) {
 
-		try {
+			String tmp_email = null;
+			String tmp_pw = null;
+			String smtp_host = null;
+			String smtp_port = null;
+			String to_email = null;
 
-			String xmlPath = CONFIG_XML_NAME;
-			Document doc = XmlUtil.createDomByPathname(xmlPath);
-			Node config = XmlUtil.getChildByName(doc, "Configuration");
-			if (config == null) {
-				JOptionPane.showMessageDialog(null, "No Config.xml file found",
+			try {
+
+				String xmlPath = CONFIG_XML_NAME;
+				Document doc = XmlUtil.createDomByPathname(xmlPath);
+				Node config = XmlUtil.getChildByName(doc, "Configuration");
+				if (config == null) {
+					JOptionPane.showMessageDialog(null,
+							"No Config.xml file found", "InfoBox: ",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+
+				tmp_email = XmlUtil.getChildString(config, "YOUR_EMAIL").trim();
+
+				tmp_pw = XmlUtil.getChildString(config, "YOUR_PASSWORD").trim();
+
+				smtp_host = XmlUtil.getChildString(config, "YOUR_SMTP_HOST")
+						.trim();
+				smtp_port = XmlUtil.getChildString(config, "YOUR_SMTP_PORT")
+						.trim();
+				to_email = XmlUtil.getChildString(config, "TO_EMAIL").trim();
+			} catch (Exception ex) {
+				JOptionPane.showMessageDialog(null, "Config.xml file ERROR !!",
 						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
 
-			tmp_email = XmlUtil.getChildString(config, "YOUR_EMAIL").trim();
+			final String email = tmp_email;
+			final String pw = tmp_pw;
+			// String encrypt = encrypt(pwStr);
+			// System.out.println("ecrypted value:" + encrypt);
+			// System.out.println("decrypted value:" +
+			// (decrypt("ThisIsASecretKey",
+			// encrypt)));
 
-			tmp_pw = XmlUtil.getChildString(config, "YOUR_PASSWORD").trim();
+			Properties props = new Properties();
+			props.put("mail.smtp.auth", "true");
+			// props.put("mail.smtp.starttls.enable", "true");
+			props.put("mail.smtp.host", smtp_host);
+			props.put("mail.smtp.port", smtp_port);
 
-			smtp_host = XmlUtil.getChildString(config, "YOUR_SMTP_HOST").trim();
-			smtp_port = XmlUtil.getChildString(config, "YOUR_SMTP_PORT").trim();
-			to_email = XmlUtil.getChildString(config, "TO_EMAIL").trim();
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, "Config.xml file ERROR !!",
-					"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
-			return;
-		}
+			Session session = Session.getInstance(props,
+					new javax.mail.Authenticator() {
+						protected PasswordAuthentication getPasswordAuthentication() {
+							return new PasswordAuthentication(email, pw);
+						}
+					});
 
-		final String email = tmp_email;
-		final String pw = tmp_pw;
-		// String encrypt = encrypt(pwStr);
-		// System.out.println("ecrypted value:" + encrypt);
-		// System.out.println("decrypted value:" + (decrypt("ThisIsASecretKey",
-		// encrypt)));
+			try {
 
-		Properties props = new Properties();
-		props.put("mail.smtp.auth", "true");
-		// props.put("mail.smtp.starttls.enable", "true");
-		props.put("mail.smtp.host", smtp_host);
-		props.put("mail.smtp.port", smtp_port);
+				String to_email_arr[] = to_email.split(";");
+				InternetAddress[] adress = new InternetAddress[to_email_arr.length];
 
-		Session session = Session.getInstance(props,
-				new javax.mail.Authenticator() {
-					protected PasswordAuthentication getPasswordAuthentication() {
-						return new PasswordAuthentication(email, pw);
-					}
-				});
+				for (int i = 0; i < to_email_arr.length; i++) {
+					adress[i] = new InternetAddress(to_email_arr[i]);
+				}
+				// adress[0] = new InternetAddress("admin@embvid.com");
+				// adress[1] = new
+				// InternetAddress("invincible.arpit@gmail.com");
+				// adress[2] = new InternetAddress("anand.krs@gmail.com");
 
-		try {
+				MimeMessage message = new MimeMessage(session);
+				message.setFrom(new InternetAddress(email));
+				message.setRecipients(Message.RecipientType.TO, adress);
+				// message.setRecipients(arg0,
+				// arg1)setRecipients(Message.RecipientType.TO,
+				// InternetAddress.parse(""));
+				message.setSubject("embvid:: Orders From ebay");
 
-			String to_email_arr[] = to_email.split(";");
-			InternetAddress[] adress = new InternetAddress[to_email_arr.length];
+				// Create the message part
+				BodyPart messageBodyPart = new MimeBodyPart();
 
-			for (int i = 0; i < to_email_arr.length; i++) {
-				adress[i] = new InternetAddress(to_email_arr[i]);
+				// Fill the message
+				messageBodyPart
+						.setText("ebay Orders Check Attachment :"
+								+ fileName
+								+ ".pdf"
+								+ "\n\nTesting Attachment \n\n SO IT's WORKING :)  \n\n No spam to my email, please!");
+				// Create a multipar message
+				Multipart multipart = new MimeMultipart();
+
+				// Set text message part
+				multipart.addBodyPart(messageBodyPart);
+
+				// Part two is attachment
+				messageBodyPart = new MimeBodyPart();
+				// String filename = "file.txt";
+				// DataSource source = new FileDataSource(fileName + ".pdf");
+				// messageBodyPart.setDataHandler(new DataHandler(source));
+				// messageBodyPart.setFileName(fileName + ".pdf");
+				// multipart.addBodyPart(messageBodyPart);
+
+				DataSource source = new FileDataSource(fileName + ".html");
+				messageBodyPart.setDataHandler(new DataHandler(source));
+				messageBodyPart.setFileName(fileName + ".html");
+				multipart.addBodyPart(messageBodyPart);
+				// Send the complete message parts
+				message.setContent(multipart);
+
+				Transport.send(message);
+
+				System.out.println("Done");
+
+			} catch (MessagingException me) {
+				JOptionPane.showMessageDialog(null, "MessagingException : "
+						+ me.getMessage(), "Exception: ",
+						JOptionPane.ERROR_MESSAGE);
+				// throw new RuntimeException(me);
 			}
-			// adress[0] = new InternetAddress("admin@embvid.com");
-			// adress[1] = new InternetAddress("invincible.arpit@gmail.com");
-			// adress[2] = new InternetAddress("anand.krs@gmail.com");
-
-			MimeMessage message = new MimeMessage(session);
-			message.setFrom(new InternetAddress(email));
-			message.setRecipients(Message.RecipientType.TO, adress);
-			// message.setRecipients(arg0,
-			// arg1)setRecipients(Message.RecipientType.TO,
-			// InternetAddress.parse(""));
-			message.setSubject("embvid:: Orders From ebay");
-
-			// Create the message part
-			BodyPart messageBodyPart = new MimeBodyPart();
-
-			// Fill the message
-			messageBodyPart
-					.setText("ebay Orders Check Attachment :"
-							+ fileName
-							+ ".pdf"
-							+ "\n\nTesting Attachment \n\n SO IT's WORKING :)  \n\n No spam to my email, please!");
-			// Create a multipar message
-			Multipart multipart = new MimeMultipart();
-
-			// Set text message part
-			multipart.addBodyPart(messageBodyPart);
-
-			// Part two is attachment
-			messageBodyPart = new MimeBodyPart();
-			// String filename = "file.txt";
-			// DataSource source = new FileDataSource(fileName + ".pdf");
-			// messageBodyPart.setDataHandler(new DataHandler(source));
-			// messageBodyPart.setFileName(fileName + ".pdf");
-			// multipart.addBodyPart(messageBodyPart);
-
-			DataSource source = new FileDataSource(fileName + ".html");
-			messageBodyPart.setDataHandler(new DataHandler(source));
-			messageBodyPart.setFileName(fileName + ".html");
-			multipart.addBodyPart(messageBodyPart);
-			// Send the complete message parts
-			message.setContent(multipart);
-
-			Transport.send(message);
-
-			System.out.println("Done");
-
-		} catch (MessagingException me) {
-			JOptionPane.showMessageDialog(null,
-					"MessagingException : " + me.getMessage(), "Exception: ",
-					JOptionPane.ERROR_MESSAGE);
-			// throw new RuntimeException(me);
-		}
 		}
 	}
 
@@ -1042,15 +1047,13 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				 * TODO: Add an listener to update the whole table if checkbox
 				 * is deselected
 				 */
-				/*if (jCheckBox.isSelected() == true) {
-					String shipStatus = (String) entry.getValue(6);
-					System.out.println(shipStatus);
-					if (shipStatus.contentEquals("NOT-SHIPPED") == false ) {
-						System.out.println("----");
-						return false;
-					}
-					System.out.println("++++++");
-				}*/
+				/*
+				 * if (jCheckBox.isSelected() == true) { String shipStatus =
+				 * (String) entry.getValue(6); System.out.println(shipStatus);
+				 * if (shipStatus.contentEquals("NOT-SHIPPED") == false ) {
+				 * System.out.println("----"); return false; }
+				 * System.out.println("++++++"); }
+				 */
 				// Returning true means show the row
 				return true;
 			}
@@ -1124,13 +1127,13 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 		void setItem(String Item) {
 			this.Item = Item;
-			
-			/*TODO: handle the multiple item brought in single transactions*/
-			
-			/*if (this.Item == null){
-				this.Item = Item;
-			}
-			this.Item = this.Item + "\n" + Item;*/
+
+			/* TODO: handle the multiple item brought in single transactions */
+
+			/*
+			 * if (this.Item == null){ this.Item = Item; } this.Item = this.Item
+			 * + "\n" + Item;
+			 */
 		}
 
 		void setQuantity(int Quantity) {
@@ -1448,6 +1451,9 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		}
 	}
 
+	/*
+	 * Function
+	 */
 	void UpdateShippedOrder() {
 		try {
 			Statement db_st = db_con.createStatement();
@@ -1459,10 +1465,14 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			ResultSet rs = db_st.executeQuery(sql);
 
 			ArrayList<String> lstOrders = new ArrayList<String>();
+			long[] lstOrderdate = new long[20000];
+			;
 
+			int idx = 0;
 			while (rs.next()) {
 				try {
 					lstOrders.add(rs.getString("OrderID"));
+					lstOrderdate[idx++] = rs.getLong("OrderDate");
 				} catch (Exception ex) {
 					((EmbvidFrame) this.getParent()).showErrorMessage(ex
 							.getMessage());
@@ -1500,8 +1510,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			for (OrderType order : orders) {
 				String orderID = order.getOrderID();
 
-				System.out.println("Order " + orderID + "\n" + "Buyer "
-						+ order.getBuyerUserID() + "\n" + "Title ");
+				System.out.println("Order " + orderID);
 
 				if (order.getShippedTime() != null) {
 					System.out.println(">>> SHIPPED\n");
@@ -1513,22 +1522,67 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 				} else {
 					System.out.println("<<< TO BE SHIPPED !!\n");
-					needToShipCount++;
+					boolean update = false;
+
+					for (int i = 0; i < size; i++) {
+						if (orderID.equals(orderIds[i])) {
+							/*
+							 * check if it's failed because it's an too old
+							 * order, then do an proxy-true since this can't be
+							 * updated any longer
+							 */
+							/*
+							 * Get the current time The current will be compared
+							 * with the OrderDate for validity to leave feedback
+							 */
+							new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+							Calendar to = GregorianCalendar.getInstance();
+							long currentTime = to.getTimeInMillis();
+
+							long OrderDate = lstOrderdate[i];// db.getOrderDate(i);
+							/* get the time difference from Order date */
+							long timeDifference = currentTime - OrderDate;
+
+							long daysInBetween = timeDifference
+									/ (24 * 60 * 60 * 1000);
+
+							if (daysInBetween >= 20) {
+								/*
+								 * do an proxy update to database so it won't be
+								 * invoked later for updates
+								 */
+								System.out.println(">>> PROXY-SHIPPED\n");
+								/*** Update the database ***/
+								sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='PROXY-SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
+										+ orderID + "'";
+
+								db_st.executeUpdate(sql);
+								update = true;
+							}
+
+							break;
+
+						}
+
+					}
+					/* If there is no update then only count*/
+					if (update == false) {
+						needToShipCount++;
+					}
 
 				}
-				TransactionArrayType transactionArray = order
-						.getTransactionArray();
-				TransactionType[] transactions = transactionArray
-						.getTransaction();
-				for (TransactionType transaction : transactions) {
-					System.out.println("Order Price : "
-							+ transaction.getTransactionPrice()
-							+ " CheckOut Status : "
-							+ order.getCheckoutStatus().getStatus()
-
-							+ " PaymentStatus : "
-							+ order.getCheckoutStatus().getEBayPaymentStatus());
-				}
+				/*
+				 * TransactionArrayType transactionArray = order
+				 * .getTransactionArray(); TransactionType[] transactions =
+				 * transactionArray .getTransaction(); for (TransactionType
+				 * transaction : transactions) {
+				 * System.out.println("Order Price : " +
+				 * transaction.getTransactionPrice() + " CheckOut Status : " +
+				 * order.getCheckoutStatus().getStatus()
+				 * 
+				 * + " PaymentStatus : " +
+				 * order.getCheckoutStatus().getEBayPaymentStatus()); }
+				 */
 			}
 			jTextField_shipCount.setText(String.format("%d", needToShipCount));
 
@@ -1594,7 +1648,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 	void createHtml() {
 
-		/*remove after testing/
+		/*
+		 * remove after testing/
 		 */
 		fileName = "test";
 		try {
@@ -1615,66 +1670,35 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			String htmlBodyS = "<body>\n";
 			String htmlBodyE = "</body>\n";
 			String htmlHeaderE = "</html>\n";
-			
-			String htmlHead = 
-			"<html>\n"+ 
-			"<head>\n"+ 
-			    "<style type=\"text/css\" media=\"all\">\n"+
-				    "body {\n"+
-			        "margin: 0;\n"+
-			        "padding: 0;\n"+
-			        "background-color: #FAFAFA;\n"+
-			        "font: 12pt \"Tahoma\";\n"+
-			    "}\n"+
-			    "* {\n"+
-			        "box-sizing: border-box;\n"+
-			        "-moz-box-sizing: border-box;\n"+
-			    "}\n"+
-			    ".page {\n"+
-			        "width: 21cm;\n"+
-			        "min-height: 29.7cm;\n"+
-			        "padding: .1cm;\n"+
-			        "margin: 1cm auto;\n"+
-			        "border: 1px #D3D3D3 solid;\n"+
-			        "border-radius: 5px;\n"+
-			        "background: white;\n"+
-			        "box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);\n"+
-			    "}\n"+
-			    ".subpage {\n"+
-			        "padding: .1cm;\n"+
-			        "border: 5px red solid;\n"+
-			        "height: 237mm;\n"+
-			        "outline: 2cm #FFEAEA solid;\n"+
-			    "}\n"+
-			    
-			    "@page {\n"+
-			        "size: A4;\n"+
-			        "margin: 0;\n"+
-			    "}\n"+
-			    "@media print {\n"+
-			        ".page {\n"+
-			            "margin: 0;\n"+
-			            "border: initial;\n"+
-			            "border-radius: initial;\n"+
-			            "width: initial;\n"+
-			            "min-height: initial;\n"+
-			            "box-shadow: initial;\n"+
-			            "background: initial;\n"+
-			            "page-break-after: always;\n"+
-			        "}\n"+
-			    "}\n"+
-			    "</style>\n"+
-			"</head>\n";
-			
-			String htmlDivS = 
-			"<div class=\"book\">\n"+
-		    "<div class=\"page\">\n"+
-		        "<div class=\"subpage\">\n";
-			
-			String htmlDivE = 
-					"</div>\n"+    
-					"</div>\n"+
-					"</div>\n";
+
+			String htmlHead = "<html>\n" + "<head>\n"
+					+ "<style type=\"text/css\" media=\"all\">\n" + "body {\n"
+					+ "margin: 0;\n" + "padding: 0;\n"
+					+ "background-color: #FAFAFA;\n"
+					+ "font: 12pt \"Tahoma\";\n" + "}\n" + "* {\n"
+					+ "box-sizing: border-box;\n"
+					+ "-moz-box-sizing: border-box;\n" + "}\n" + ".page {\n"
+					+ "width: 21cm;\n" + "min-height: 29.7cm;\n"
+					+ "padding: .1cm;\n" + "margin: 1cm auto;\n"
+					+ "border: 1px #D3D3D3 solid;\n" + "border-radius: 5px;\n"
+					+ "background: white;\n"
+					+ "box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);\n" + "}\n"
+					+ ".subpage {\n" + "padding: .1cm;\n"
+					+ "border: 5px red solid;\n" + "height: 237mm;\n"
+					+ "outline: 2cm #FFEAEA solid;\n" + "}\n" +
+
+					"@page {\n" + "size: A4;\n" + "margin: 0;\n" + "}\n"
+					+ "@media print {\n" + ".page {\n" + "margin: 0;\n"
+					+ "border: initial;\n" + "border-radius: initial;\n"
+					+ "width: initial;\n" + "min-height: initial;\n"
+					+ "box-shadow: initial;\n" + "background: initial;\n"
+					+ "page-break-after: always;\n" + "}\n" + "}\n"
+					+ "</style>\n" + "</head>\n";
+
+			String htmlDivS = "<div class=\"book\">\n"
+					+ "<div class=\"page\">\n" + "<div class=\"subpage\">\n";
+
+			String htmlDivE = "</div>\n" + "</div>\n" + "</div>\n";
 
 			File fileHtml = new File(fileName + ".html");
 
@@ -1685,14 +1709,14 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 			FileWriter fwHtml = new FileWriter(fileHtml.getAbsoluteFile());
 			BufferedWriter bwHtml = new BufferedWriter(fwHtml);
-			
+
 			bwHtml.write(htmlHead);
 			bwHtml.write(htmlDivS);
-			//bwHtml.write(htmlHeader);
-			//bwHtml.write(htmlHeadS);
-			//bwHtml.write(htmlMeta);
-			//bwHtml.write(htmlTitle);
-			//bwHtml.write(htmlHeadE);
+			// bwHtml.write(htmlHeader);
+			// bwHtml.write(htmlHeadS);
+			// bwHtml.write(htmlMeta);
+			// bwHtml.write(htmlTitle);
+			// bwHtml.write(htmlHeadE);
 
 			bwHtml.write(htmlBodyS);
 
@@ -1724,119 +1748,119 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	}
 
 	void btnFeedback_actionPerformed(ActionEvent e) {
-				
-			EmbvidSendFeedbackDialog dlg = new EmbvidSendFeedbackDialog(this, "eBay SDK for Java - LeaveFeedback", true);
-		    GuiUtil.CenterComponent(dlg);
-		    dlg.setVisible(true);
+
+		EmbvidSendFeedbackDialog dlg = new EmbvidSendFeedbackDialog(this,
+				"eBay SDK for Java - LeaveFeedback", true);
+		GuiUtil.CenterComponent(dlg);
+		dlg.setVisible(true);
 	}
 
 	void btnUpdate_actionPerformed(ActionEvent e) {
-		//TODO: whole logic need to changed. as of now comment the code
-		
-		if(false) {
-		try {
-			
-			if (table == null) {
-				JOptionPane.showMessageDialog(this, "No Table Found !!");
-			}
-			table.getCellEditor().stopCellEditing();
-			if (table.getModel().getRowCount() > 0) {
-				// loadConfiguration();
-				int rowcount = table.getModel().getRowCount();
-				table.setOpaque(true);
+		// TODO: whole logic need to changed. as of now comment the code
 
-				// Get the shipment text which need to be updated
-				String xmlPath = CONFIG_XML_NAME;
-				Document doc = XmlUtil.createDomByPathname(xmlPath);
-				Node config = XmlUtil.getChildByName(doc, "Configuration");
-				if (config == null) {
-					JOptionPane.showMessageDialog(null,
-							"No Config.xml file found", "InfoBox: "
-									+ "Update Feedback !!",
-							JOptionPane.INFORMATION_MESSAGE);
-					return;
+		if (false) {
+			try {
+
+				if (table == null) {
+					JOptionPane.showMessageDialog(this, "No Table Found !!");
 				}
+				table.getCellEditor().stopCellEditing();
+				if (table.getModel().getRowCount() > 0) {
+					// loadConfiguration();
+					int rowcount = table.getModel().getRowCount();
+					table.setOpaque(true);
 
-				String shipRemarks = XmlUtil.getChildString(config,
-						"ShipmentRemark").trim();
-
-				// String[] trackNum = new String[rowcount];
-				for (int i = 0; i < rowcount; i++) {
-					String TarckingNum = (String) table.getModel().getValueAt(
-							i, 6);
-					if (TarckingNum.equals("TO-BE-SHIPPED") == false) {
-						if (TarckingNum.equals("SHIPPED") == true)
-							continue;
-						// trackNum[idx] = ""+TarckingNum;
-						// System.out.println(trackNum[idx++]);
-						String OrderId = (String) table.getModel().getValueAt(
-								i, 1);
-
-						String[] parts = OrderId.split("-");
-						String ItemId = parts[0].trim(); // 004
-						String TransactionId = parts[1].trim(); // 034556
-
-						CompleteSaleCall completeSaleApi = new CompleteSaleCall(
-								this.apiContext);
-
-						// completeSaleApi.setOrderLineItemID(OrderId);
-						completeSaleApi.setItemID(ItemId);
-						completeSaleApi.setTransactionID(TransactionId);
-
-						completeSaleApi.setShipped(true);
-
-						ShipmentTrackingDetailsType shpmnt = new ShipmentTrackingDetailsType();
-						shpmnt.setShipmentTrackingNumber(TarckingNum);
-
-						// ShippingCarrierCodeType[] shippingCarrier =
-						// shpmnt.getShippingCarrierUsed();
-
-						shpmnt.setShippingCarrierUsed(ShippingCarrierCodeType.OTHER
-								.toString());
-
-						new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-						Calendar to = GregorianCalendar.getInstance();
-						ShipmentType shipType = new ShipmentType();
-						// shipType.setShippedTime(to);
-
-						shipType.setShipmentTrackingDetails(new ShipmentTrackingDetailsType[] { shpmnt });
-						// shipType.setNotes(shipRemarks);
-						completeSaleApi.setShipment(shipType);
-
-						try {
-							completeSaleApi.completeSale();
-							AbstractResponseType resp = completeSaleApi
-									.getResponseObject();
-							Date dt = resp.getTimestamp().getTime();
-							System.out.println("Response : "
-									+ resp.getAck().value() + " Time: "
-									+ eBayUtil.toAPITimeString(dt));
-
-						} catch (Exception ex) {
-
-							JOptionPane
-									.showMessageDialog(null, "Update fail:  "
-											+ TarckingNum + "\n("
-											+ ex.getMessage().toString() + ")",
-											"Fail !! ",
-											JOptionPane.INFORMATION_MESSAGE);
-						}
-
-						// shipmnt.set
-						System.out
-								.println("------------------------------------------------------------------");
-						System.out.println(OrderId);
-						System.out.println("Set Tracking number :"
-								+ TarckingNum + " for " + ItemId + "-"
-								+ TransactionId);
+					// Get the shipment text which need to be updated
+					String xmlPath = CONFIG_XML_NAME;
+					Document doc = XmlUtil.createDomByPathname(xmlPath);
+					Node config = XmlUtil.getChildByName(doc, "Configuration");
+					if (config == null) {
+						JOptionPane.showMessageDialog(null,
+								"No Config.xml file found", "InfoBox: "
+										+ "Update Feedback !!",
+								JOptionPane.INFORMATION_MESSAGE);
+						return;
 					}
+
+					String shipRemarks = XmlUtil.getChildString(config,
+							"ShipmentRemark").trim();
+
+					// String[] trackNum = new String[rowcount];
+					for (int i = 0; i < rowcount; i++) {
+						String TarckingNum = (String) table.getModel()
+								.getValueAt(i, 6);
+						if (TarckingNum.equals("TO-BE-SHIPPED") == false) {
+							if (TarckingNum.equals("SHIPPED") == true)
+								continue;
+							// trackNum[idx] = ""+TarckingNum;
+							// System.out.println(trackNum[idx++]);
+							String OrderId = (String) table.getModel()
+									.getValueAt(i, 1);
+
+							String[] parts = OrderId.split("-");
+							String ItemId = parts[0].trim(); // 004
+							String TransactionId = parts[1].trim(); // 034556
+
+							CompleteSaleCall completeSaleApi = new CompleteSaleCall(
+									this.apiContext);
+
+							// completeSaleApi.setOrderLineItemID(OrderId);
+							completeSaleApi.setItemID(ItemId);
+							completeSaleApi.setTransactionID(TransactionId);
+
+							completeSaleApi.setShipped(true);
+
+							ShipmentTrackingDetailsType shpmnt = new ShipmentTrackingDetailsType();
+							shpmnt.setShipmentTrackingNumber(TarckingNum);
+
+							// ShippingCarrierCodeType[] shippingCarrier =
+							// shpmnt.getShippingCarrierUsed();
+
+							shpmnt.setShippingCarrierUsed(ShippingCarrierCodeType.OTHER
+									.toString());
+
+							new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+							Calendar to = GregorianCalendar.getInstance();
+							ShipmentType shipType = new ShipmentType();
+							// shipType.setShippedTime(to);
+
+							shipType.setShipmentTrackingDetails(new ShipmentTrackingDetailsType[] { shpmnt });
+							// shipType.setNotes(shipRemarks);
+							completeSaleApi.setShipment(shipType);
+
+							try {
+								completeSaleApi.completeSale();
+								AbstractResponseType resp = completeSaleApi
+										.getResponseObject();
+								Date dt = resp.getTimestamp().getTime();
+								System.out.println("Response : "
+										+ resp.getAck().value() + " Time: "
+										+ eBayUtil.toAPITimeString(dt));
+
+							} catch (Exception ex) {
+
+								JOptionPane.showMessageDialog(null,
+										"Update fail:  " + TarckingNum + "\n("
+												+ ex.getMessage().toString()
+												+ ")", "Fail !! ",
+										JOptionPane.INFORMATION_MESSAGE);
+							}
+
+							// shipmnt.set
+							System.out
+									.println("------------------------------------------------------------------");
+							System.out.println(OrderId);
+							System.out.println("Set Tracking number :"
+									+ TarckingNum + " for " + ItemId + "-"
+									+ TransactionId);
+						}
+					}
+				} else {
+					JOptionPane.showMessageDialog(this, "No Table Found !!");
 				}
-			} else {
+			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this, "No Table Found !!");
 			}
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, "No Table Found !!");
-		}
 		}
 	}
 
