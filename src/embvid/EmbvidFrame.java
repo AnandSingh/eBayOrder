@@ -179,6 +179,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	private static final int BUYER_ID = 4;
 	private static final int SHIP_ADDR = 5;
 	private static final int TRACK = 6;
+	private JButton salesGraphButton;
+	private JButton salesButton;
 	private JTextField jTextField_shipCount;
 	private JLabel jLabel10;
 	private JLabel jLabel9;
@@ -650,6 +652,25 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			jTextField_shipCount.setText("       ");
 			jTextField_shipCount
 					.setPreferredSize(new java.awt.Dimension(34, 22));
+		}
+		{
+			salesButton = new JButton();
+			jPanel7.add(salesButton, new GridBagConstraints(5, 15, 1, 1, 0.0,
+					0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE,
+					new Insets(0, 0, 0, 0), 0, 0));
+			salesButton.setText("Sales");
+			salesButton
+					.addActionListener(new Frame_btnSales_actionAdapter(this));
+		}
+		{
+			salesGraphButton = new JButton();
+			jPanel7.add(salesGraphButton, new GridBagConstraints(6, 15, 1, 1,
+					0.0, 0.0, GridBagConstraints.CENTER,
+					GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+			salesGraphButton.setText("Sales Graph");
+			salesGraphButton
+					.addActionListener(new Frame_btnSalesGraph_actionAdapter(
+							this));
 		}
 		jPanel2.add(jPanel9, BorderLayout.SOUTH);
 		this.getContentPane().add(jPanel1, BorderLayout.CENTER);
@@ -1565,7 +1586,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 						}
 
 					}
-					/* If there is no update then only count*/
+					/* If there is no update then only count */
 					if (update == false) {
 						needToShipCount++;
 					}
@@ -1864,6 +1885,24 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		}
 	}
 
+	/* Function to handle the current sales when user press "sales" button */
+	void btnSales_actionPerformed(ActionEvent e) {
+		EmbvidSales dlg = new EmbvidSales(this,
+				"eBay SDK for Java - Sales", true);
+		GuiUtil.CenterComponent(dlg);
+		dlg.setVisible(true);
+	}
+
+	/*
+	 * Function to show the sales graph when user press "Sales Graph" button
+	 */
+	void btnSalesGraph_actionPerformed(ActionEvent e) {
+		EmbvidSalesGraph dlg = new EmbvidSalesGraph(this,
+				"eBay SDK for Java - Sales Graph", true);
+		GuiUtil.CenterComponent(dlg);
+		dlg.setVisible(true);
+	}
+
 	// KeyListner interfaces
 	public void keyTyped(KeyEvent evt) {
 	}
@@ -1915,7 +1954,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	}
 }
 
-// Classes to handle the menu selection/button press events.
+/* Classes to handle the menu selection/button press events. */
 class Frame_jMenuFileExit_ActionAdapter implements ActionListener {
 	EmbvidFrame adaptee;
 
@@ -1953,6 +1992,7 @@ class Frame_jMenuItemAccount_actionAdapter implements
 	}
 }
 
+/* All button handlers */
 class Frame_btnSendMail_actionAdapter implements java.awt.event.ActionListener {
 	EmbvidFrame adaptee;
 
@@ -1998,5 +2038,30 @@ class Frame_btnFeedback_actionAdapter implements java.awt.event.ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		adaptee.btnFeedback_actionPerformed(e);
+	}
+}
+
+class Frame_btnSales_actionAdapter implements java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
+
+	Frame_btnSales_actionAdapter(EmbvidFrame adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		adaptee.btnSales_actionPerformed(e);
+	}
+}
+
+class Frame_btnSalesGraph_actionAdapter implements
+		java.awt.event.ActionListener {
+	EmbvidFrame adaptee;
+
+	Frame_btnSalesGraph_actionAdapter(EmbvidFrame adaptee) {
+		this.adaptee = adaptee;
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		adaptee.btnSalesGraph_actionPerformed(e);
 	}
 }
