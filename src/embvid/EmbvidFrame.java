@@ -19,7 +19,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
-package embvid;
+package com.embvid;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
@@ -900,6 +900,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 	void btnGetOrders_actionPerformed(ActionEvent e) {
 		GetOrder();
+		UpdateGUITable();
 	}
 
 	void InitSqlDatabase() {
@@ -933,7 +934,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			// rs = st.executeQuery("SELECT VERSION()");
 
 			st = db_con.createStatement();
-			String sql = "CREATE TABLE if not exists EMBVID_ORDERS5 "
+			String sql = "CREATE TABLE if not exists ORDERS "
 					+ "(ID 			   INT NOT NULL AUTO_INCREMENT,"
 					+ " OrderDate       bigint, "
 					+ " OrderStatus      varchar(50), "
@@ -951,9 +952,9 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 			// TODO: get the total roe count in SQL database
 			// Statement st = con.createStatement();
-			rs = st.executeQuery("SELECT * FROM test1db.EMBVID_ORDERS5");
+			rs = st.executeQuery("SELECT * FROM embvid.ORDERS");
 
-			rs = st.executeQuery("SELECT COUNT(*) FROM test1db.EMBVID_ORDERS5");
+			rs = st.executeQuery("SELECT COUNT(*) FROM embvid.ORDERS");
 
 			rs.next();
 			db_maxRow = rs.getInt(1);
@@ -1007,7 +1008,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			// db_pw);
 			Statement db_st = db_con.createStatement();
 
-			String sql = "INSERT INTO test1db.EMBVID_ORDERS5 "
+			String sql = "INSERT INTO embvid.ORDERS "
 					+ "(OrderDate, OrderStatus, OrderID, PaisaPayID,"
 					+ " Item, Quantity, Price, BuyerID, BuyerEmail, ShipAddress,"
 					+ " ShippingStatus, FeedBack) " + "SELECT "
@@ -1035,7 +1036,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 					+ "', 'false'"
 					+ "FROM dual "
 					+ "WHERE NOT EXISTS (SELECT * "
-					+ "FROM test1db.EMBVID_ORDERS5 "
+					+ "FROM embvid.ORDERS "
 					+ "WHERE OrderID = '"
 					+ orderInfo.OrderId
 					+ "' "
@@ -1058,7 +1059,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		RowFilter<EmbvidPagingModel, Object> rowFilter = new RowFilter<EmbvidPagingModel, Object>() {
 			public boolean include(Entry entry) {
 				String orderstatus = (String) entry.getValue(0);
-				if (orderstatus.contains("INCOMPLETE") == true) {
+				String payPalID = (String) entry.getValue(1);
+				if (orderstatus.contains("INCOMPLETE") == true || payPalID.contains("null") == true) {
 					// Returning false indicates this row would not be
 					// shown.
 					return false;
@@ -1238,7 +1240,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			System.out.println("Last fetch time : " + lastFetchTime);
 			if (lastFetchTime == 0) {
 				Calendar from = (GregorianCalendar) to.clone();
-				from.add(Calendar.DAY_OF_YEAR, -30);
+				from.add(Calendar.DAY_OF_YEAR, -90);
 				// from.se, month, date)
 				from.clear(Calendar.HOUR);
 				from.clear(Calendar.HOUR_OF_DAY);
@@ -1480,7 +1482,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			Statement db_st = db_con.createStatement();
 
 			String sql = "SELECT OrderID, OrderDate "
-					+ "FROM test1db.EMBVID_ORDERS5 "
+					+ "FROM embvid.ORDERS "
 					+ "WHERE OrderStatus='COMPLETE' AND ShippingStatus='NOT-SHIPPED'";
 
 			ResultSet rs = db_st.executeQuery(sql);
@@ -1536,7 +1538,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				if (order.getShippedTime() != null) {
 					System.out.println(">>> SHIPPED\n");
 					/*** Update the database ***/
-					sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
+					sql = "UPDATE embvid.ORDERS SET ShippingStatus='SHIPPED' WHERE ORDERS.OrderID='"
 							+ orderID + "'";
 
 					db_st.executeUpdate(sql);
@@ -1574,7 +1576,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 								 */
 								System.out.println(">>> PROXY-SHIPPED\n");
 								/*** Update the database ***/
-								sql = "UPDATE test1db.EMBVID_ORDERS5 SET ShippingStatus='PROXY-SHIPPED' WHERE EMBVID_ORDERS5.OrderID='"
+								sql = "UPDATE embvid.ORDERS SET ShippingStatus='PROXY-SHIPPED' WHERE ORDERS.OrderID='"
 										+ orderID + "'";
 
 								db_st.executeUpdate(sql);
@@ -1677,7 +1679,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			Statement db_st = db_con.createStatement();
 
 			String sql = "SELECT ShipAddress, Item "
-					+ "FROM test1db.EMBVID_ORDERS5 "
+					+ "FROM embvid.ORDERS "
 					+ "WHERE OrderStatus='COMPLETE' AND ShippingStatus='NOT-SHIPPED'";
 
 			ResultSet rs = db_st.executeQuery(sql);

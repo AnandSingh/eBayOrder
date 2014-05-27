@@ -1,4 +1,4 @@
-package embvid;
+package com.embvid;
 
 /*
  Copyright (c) 2013 eBay, Inc.

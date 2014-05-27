@@ -19,7 +19,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
-package embvid;
+package com.embvid;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -317,7 +317,7 @@ class dbRecord {
 			 * else show all the data base */
 			if (view == true) {
 				rs = st.executeQuery("SELECT * "
-						+ "FROM test1db.EMBVID_ORDERS5 "
+						+ "FROM embvid.ORDERS "
 						+ "WHERE OrderStatus = 'COMPLETE' "
 						+ "AND ShippingStatus = 'NOT-SHIPPED'");
 				maxRow = 0;
@@ -330,8 +330,8 @@ class dbRecord {
 				}
 			} else {
 
-				rs = st.executeQuery("SELECT * FROM test1db.EMBVID_ORDERS5");
-				rs = st.executeQuery("SELECT COUNT(*) FROM test1db.EMBVID_ORDERS5");
+				rs = st.executeQuery("SELECT * FROM embvid.ORDERS");
+				rs = st.executeQuery("SELECT COUNT(*) FROM embvid.ORDERS");
 				rs.next();
 				maxRow = rs.getInt(1);
 			}
@@ -420,7 +420,7 @@ class dbRecord {
 
 			Statement st = con.createStatement();
 
-			String sql = "SELECT" + selCol + "FROM test1db.EMBVID_ORDERS5 "
+			String sql = "SELECT" + selCol + "FROM embvid.ORDERS "
 					+ "WHERE ID=" + selRow;
 
 			ResultSet rs = st.executeQuery(sql);

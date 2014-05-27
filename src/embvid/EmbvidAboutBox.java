@@ -7,7 +7,7 @@ at http://www.opensource.org/licenses/cddl1.php and in the eBaySDKLicense file t
 is under the eBay SDK ../docs directory.
  */
 
-package embvid;
+package com.embvid;
 
 import java.awt.AWTEvent;
 import java.awt.BorderLayout;
