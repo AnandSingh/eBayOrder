@@ -30,6 +30,8 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -37,6 +39,7 @@ import java.util.Random;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+
 
 /*
  * To change this template, choose Tools | Templates
@@ -105,8 +108,6 @@ import com.ebay.soap.eBLBaseComponents.AbstractResponseType;
 import com.ebay.soap.eBLBaseComponents.CommentTypeCodeType;
 import com.ebay.soap.eBLBaseComponents.FeedbackDetailType;
 
-import embvid.EmbvidSendFeedbackDialog.EmbvidSendFeedbackDialog_btnCallAddToItemDescription_actionAdapter;
-
 /**
  * This code was edited or generated using CloudGarden's Jigloo SWT/Swing GUI
  * Builder, which is free for non-commercial use. If Jigloo is being used
@@ -134,6 +135,8 @@ public class EmbvidSalesGraph extends JDialog {
 	private int pointWidth = 4;
 	private int numberYDivisions = 10;
 	private List<Double> scores = new ArrayList<Double>();
+	long[] lstOrderdate;
+	float[] lstPrice = null;
 
 	final String CONFIG_XML_NAME = "Config.xml";
 	private JPanel jPanel2;
@@ -160,14 +163,103 @@ public class EmbvidSalesGraph extends JDialog {
 
 	private void jbInit() throws Exception {
 
+		
+		int totalRecord = 0;
 		// List<Double> scores = new ArrayList<Double>();
 		Random random = new Random();
-		int maxDataPoints = 12;
+
+		new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+		Calendar to = GregorianCalendar.getInstance();
+		long currentTime = to.getTimeInMillis() - (60 * 24 * 60 * 60 * 10000);
+
+		System.out.println(currentTime);
+
+		Statement st = null;
+		ResultSet rs = null;
+		try {
+			String xmlPath = CONFIG_XML_NAME;
+			Document doc = XmlUtil.createDomByPathname(xmlPath);
+			Node config = XmlUtil.getChildByName(doc, "Configuration");
+			if (config == null) {
+				JOptionPane.showMessageDialog(null, "No Config.xml file found",
+						"InfoBox: " + "Initilizing SQL Fails  !!",
+						JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+
+			String db_url = XmlUtil.getChildString(config, "DB_URL").trim();
+			String db_user = XmlUtil.getChildString(config, "DB_USER").trim();
+			String db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
+
+			Connection con = DriverManager.getConnection(db_url, db_user,
+					db_pass);
+			st = con.createStatement();
+
+			String sql = "SELECT OrderDate, Price FROM embvid.ORDERS WHERE OrderDate>=1401064036272 AND OrderStatus='COMPLETE'";
+
+			rs = st.executeQuery(sql);
+
+			lstOrderdate = new long[20000];
+			lstPrice = new float[20000];
+			totalRecord = 0;
+			while (rs.next()) {
+				try {
+
+					lstOrderdate[totalRecord] = rs.getLong("OrderDate");
+					lstPrice[totalRecord] = rs.getFloat("Price");
+					totalRecord++;
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null, ex.getMessage(),
+							"Exception: ", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			st.close();
+		} catch (SQLException ex) {
+
+			System.out.println("Exception :\n" + ex.getMessage());
+			JOptionPane.showMessageDialog(null, ex.getMessage(), "Exception: ",
+					JOptionPane.INFORMATION_MESSAGE);
+
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TransformerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				if (rs != null) {
+					rs.close();
+				}
+				if (st != null) {
+					st.close();
+				}
+				/*
+				 * if (con != null) { con.close(); }
+				 */
+
+			} catch (SQLException ex) {
+
+				System.out.println("Exception :\n" + ex.getMessage());
+				JOptionPane.showMessageDialog(null, ex.getMessage(),
+						"Exception: " + ex.getMessage(),
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+
+		int maxDataPoints = 30;
 		int maxScore = 166;
-		for (int i = 0; i < maxDataPoints; i++) {
-			scores.add((double) random.nextDouble() * maxScore);
+		for (int i = 0; i < totalRecord; i++) {
+			scores.add((double) lstPrice[i]);
 			// scores.add((double) i);
 		}
+
 		panel1.setLayout(borderLayout1);
 		// jPanel1.setLayout(borderLayout2);
 		// panel1.add(jPanel1, BorderLayout.NORTH);
@@ -246,7 +338,7 @@ public class EmbvidSalesGraph extends JDialog {
 			}
 			g2.drawLine(x0, y0, x1, y1);
 		}
-
+		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		// and for x axis
 		for (int i = 0; i < scores.size(); i++) {
 			if (scores.size() > 1) {
@@ -260,7 +352,8 @@ public class EmbvidSalesGraph extends JDialog {
 					g2.drawLine(x0, getHeight() - padding - labelPadding - 1
 							- pointWidth, x1, padding);
 					g2.setColor(Color.BLACK);
-					String xLabel = i + "";
+					
+					String xLabel = formatter.format(lstOrderdate[i]) + "";
 					FontMetrics metrics = g2.getFontMetrics();
 					int labelWidth = metrics.stringWidth(xLabel);
 					g2.drawString(xLabel, x0 - labelWidth / 2,
@@ -329,18 +422,5 @@ public class EmbvidSalesGraph extends JDialog {
 	public List<Double> getScores() {
 		return scores;
 	}
-
-	// private static void createAndShowGui() {
-
-	// }
-
-	// public static void main(String[] args) {
-	// SwingUtilities.invokeLater(new Runnable() {
-	// public void run() {
-	// createAndShowGui();
-	// }
-	// });
-	// }
-	// }
 
 }
