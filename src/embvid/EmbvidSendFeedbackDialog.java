@@ -19,7 +19,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.*/
 
-package embvid;
+package com.embvid;
 
 /**
  * <p>
@@ -53,8 +53,23 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Properties;
 import java.util.TimeZone;
 
+import javax.activation.DataHandler;
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -142,7 +157,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 						this));
 		jLabel1.setPreferredSize(new java.awt.Dimension(128, 15));
 		jLabel1.setText("Feedback Message");
-		txtDescriptionToAppend.setPreferredSize(new java.awt.Dimension(457, 37));
+		txtDescriptionToAppend
+				.setPreferredSize(new java.awt.Dimension(457, 37));
 		jPanel4.setLayout(borderLayout3);
 		jPanel5.setPreferredSize(new Dimension(149, 40));
 		jPanel6.setMinimumSize(new Dimension(52, 31));
@@ -158,7 +174,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			jTextPane1_log.setLineWrap(true);
 			jTextPane1_log.setEditable(false);
 			jTextPane1_log.setVisible(true);
-			//jTextPane1_log.setPreferredSize(new java.awt.Dimension(119, 156));
+			// jTextPane1_log.setPreferredSize(new java.awt.Dimension(119,
+			// 156));
 
 			JScrollPane scroll = new JScrollPane(jTextPane1_log);
 			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
@@ -208,9 +225,158 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			return;
 		}
 	}
+	
+	/*
+	 * Send an mail to buyer once feedback is updated 
+	 */
+	void SendMail(String BuyerId, String BuyerEmail)
+	{
+		String tmp_email = null;
+		String tmp_pw = null;
+		String smtp_host = null;
+		String smtp_port = null;
+		String to_email = null;
+		String emailBody = null;
 
-	void ProcessFeedback() {
+		try {
+
+			String xmlPath = CONFIG_XML_NAME;
+			Document doc = XmlUtil.createDomByPathname(xmlPath);
+			Node config = XmlUtil.getChildByName(doc, "Configuration");
+			if (config == null) {
+				JOptionPane.showMessageDialog(null, "No Config.xml file found",
+						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+				return;
+			}
+
+			tmp_email = XmlUtil.getChildString(config, "EMAIL_FOR_BUYER").trim();
+
+			tmp_pw = XmlUtil.getChildString(config, "YOUR_PASSWORD").trim();
+
+			smtp_host = XmlUtil.getChildString(config, "YOUR_SMTP_HOST").trim();
+			smtp_port = XmlUtil.getChildString(config, "YOUR_SMTP_PORT").trim();
+			//to_email = XmlUtil.getChildString(config, "TO_EMAIL").trim();
+			to_email = BuyerEmail;
+			//emailBody = XmlUtil.getChildString(config, "EMAIL_BODY").trim();
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(null, "Config.xml file ERROR !!",
+					"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+			return;
+		}
+
+		final String email = tmp_email;
+		final String pw = tmp_pw;
 		
+		Properties props = new Properties();
+		props.put("mail.smtp.auth", "true");
+		// props.put("mail.smtp.starttls.enable", "true");
+		props.put("mail.smtp.host", smtp_host);
+		props.put("mail.smtp.port", smtp_port);
+
+		Session session = Session.getInstance(props,
+				new javax.mail.Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(email, pw);
+					}
+				});
+
+		try {
+
+			String to_email_arr[] = to_email.split(";");
+			InternetAddress[] adress = new InternetAddress[to_email_arr.length];
+
+			for (int i = 0; i < to_email_arr.length; i++) {
+				adress[i] = new InternetAddress(to_email_arr[i]);
+			}
+			// adress[0] = new InternetAddress("admin@embvid.com");
+			// adress[1] = new InternetAddress("invincible.arpit@gmail.com");
+			// adress[2] = new InternetAddress("anand.krs@gmail.com");
+
+			MimeMessage message = new MimeMessage(session);
+			message.setFrom(new InternetAddress(email));
+			message.setRecipients(Message.RecipientType.TO, adress);
+			// message.setRecipients(arg0,
+			// arg1)setRecipients(Message.RecipientType.TO,
+			// InternetAddress.parse(""));
+			message.setSubject("embvid:: Update for ebay Order");
+
+			// Create the message part
+			BodyPart messageBodyPart = new MimeBodyPart();
+			//emailBody = "<h1>Sample</h1><p>This is a sample HTML part</p>";
+			
+			emailBody = ""+
+			"<br><br>Greetings from </font></font><font face=\"arial, sans-serif\"><font>Embvid</font></font><font face=\"arial, sans-serif\"><font>.<br>"+
+			"<br>Hope "+
+			"you are doing great.<br><br>Thank you for purchasing from us.</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>To help you keep track of your purchases, we're sending you this order update. You can also view the latest order updated and details in </font></font><font face=\"arial, sans-serif\"><font><font><a href=\"https://signin.ebay.in/ws/eBayISAPI.dll?SignIn&UsingSSL=1&pUserId=&co_partnerId=2&siteid=203&ru=http%3A%2F%2Fmy.ebay.in%2Fws%2FeBayISAPI.dll%3FMyEbayBeta%26MyEbay%3D%26gbh%3D1%26guest%3D1&pageType=3984\" target=\"_blank\">"+
+			"My Ebay</a>.</font></font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>Recent "+
+			"updates to your order: </font></font><font face=\"arial, sans-serif\"><font>Your "+
+			"order </font></font><font face=\"arial, sans-serif\"><font>is "+
+			"marked as shipped</font></font><font face=\"arial, sans-serif\"><font>.<br></font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>For "+
+			"any queries, feel free to contact us.</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>Please leave an positive for us, we too have left an positive feedback for you.</font></font></p>"+
+			"<p style=\"margin-bottom:0.2in\"><a href=\"http://feedback.ebay.in/ws/eBayISAPI.dll?LeaveFeedbackShow&amp;useridto=embvid&amp;item=%3Cxxxxxxxxxxx%3E&amp;transactid=%3Cxxxxxxxxxxxx%3E&amp;useridfrom=%3Cuser-id%3E\" target=\"_blank\"><font face=\"arial, sans-serif\"><font><b>Leave Feedback</b></font></font></a></p>"+
+			"<p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font></font></font><font face=\"arial, sans-serif\"><font>Thanks</font></font><font face=\"arial, sans-serif\"><font><br>Team"+
+			"</font></font><font face=\"arial, sans-serif\"><font>Embvid</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font><a href=\"http://www.embvid.com/\" target=\"_blank\">www.</a></font></font><a href=\"http://www.embvid.com/\" target=\"_blank\"><font face=\"arial, sans-serif\"><font>embvid.com</font></font></a><font face=\"arial, sans-serif\"><font><br>"+
+			"Like us @ Facebook : <a href=\"http://www.facebook.com/embvid\" target=\"_blank\">www.facebook.com/</a></font></font><a href=\"http://www.facebook.com/embvid.com\" target=\"_blank\"><font face=\"arial, sans-serif\"><font>embvid</font></font></a><font face=\"arial, sans-serif\"><font><br>"+
+			"</font></font></p><p style=\"margin-bottom:0.2in\"></p><p style=\"margin-bottom:0.2in\"></p><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\"><tbody><tr><td>____________________________________________________________________________________<br><br>"+
+			"<b>This is a <span>system</span> <span>generated</span> <span>mail</span>. Please do not reply to this email ID. If<br>you have a query or need any clarification you may: <br>(1) Call our 24-hour Customer Care or<br>"+
+			"(2) Email Us <a href=\"mailto:info@embvid.com\" target=\"_blank\">info@embvid.com</a> </b> <br>____________________________________________________________________________________</td>";
+
+			
+			// Fill the message
+			//messageBodyPart.setText(emailBody);
+			// Create a multipar message
+			Multipart multipart = new MimeMultipart();
+			
+			messageBodyPart
+			.setText("Hi "+BuyerId+",");
+			// Set text message part
+			
+			
+			MimeBodyPart htmlPart = new MimeBodyPart();
+			htmlPart.setContent(emailBody, "text/html");
+
+			// Part two is attachment
+			//messageBodyPart = new MimeBodyPart();
+			// String filename = "file.txt";
+			// DataSource source = new FileDataSource(fileName + ".pdf");
+			// messageBodyPart.setDataHandler(new DataHandler(source));
+			// messageBodyPart.setFileName(fileName + ".pdf");
+			// multipart.addBodyPart(messageBodyPart);
+
+			//DataSource source = new FileDataSource(fileName + ".html");
+			//messageBodyPart.setDataHandler(new DataHandler(source));
+			//messageBodyPart.setFileName(fileName + ".html");
+			multipart.addBodyPart(messageBodyPart);
+			multipart.addBodyPart(htmlPart);
+			// Send the complete message parts
+			message.setContent(multipart);
+
+			Transport.send(message);
+
+			System.out.println("Done");
+
+		} catch (MessagingException me) {
+			JOptionPane.showMessageDialog(null,
+					"MessagingException : " + me.getMessage(), "Exception: ",
+					JOptionPane.ERROR_MESSAGE);
+			// throw new RuntimeException(me);
+		}
+		
+		jTextPane1_log.append("Email sent to "+BuyerEmail +" ...\n");
+		/*
+		 * Make sure the new text is visible, even if there was a
+		 * selection in the text area.
+		 */
+		jTextPane1_log.setCaretPosition(jTextPane1_log
+				.getDocument().getLength());
+		jTextPane1_log.setAutoscrolls(true);
+	}
+
+	/*
+	 * Start sending the Feedback to user 
+	 */
+	void ProcessFeedback() {
+
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			/*
@@ -232,17 +398,20 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			BuyerRecord db = new BuyerRecord();
 
 			/*
-			 * No record to update the Feedback*/
-			if(db.getCount() == 0)
-			{
-				JOptionPane.showMessageDialog(null, "No Record Found to update Feedback !!",
-						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+			 * No record to update the Feedback
+			 */
+			if (db.getCount() == 0) {
+				JOptionPane.showMessageDialog(null,
+						"No Record Found to update Feedback !!", "InfoBox: ",
+						JOptionPane.INFORMATION_MESSAGE);
 				return;
 			}
-			
-			for (int i = 0; i < db.getCount(); i++) {
-				String BuyerID = db.getBuyerID(i);
 
+			for (int i = 0; i < db.getCount(); i++) {
+				
+				/*Get the BuyerID, BuyerEmail, OrderId*/
+				String BuyerID = db.getBuyerID(i);
+				String BuyerEmail = db.getBuyerEmail(i);
 				String OrderId = db.getOrderId(i);
 
 				String[] parts = OrderId.split("-");
@@ -257,6 +426,17 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				}
 
 				try {
+					long OrderDate = db.getOrderDate(i);
+					/* get the time difference from Order date */
+					long timeDifference = currentTime - OrderDate;
+
+					long daysInBetween = timeDifference / (24 * 60 * 60 * 1000);
+
+					/*
+					 * if order date is old than 20 days then it's late to
+					 * update the feedback
+					 */
+					if (daysInBetween <= 15) {
 					LeaveFeedbackCall feedbackapi = new LeaveFeedbackCall(
 							this.apiContext);
 
@@ -290,6 +470,18 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 					jTextPane1_log.setCaretPosition(jTextPane1_log
 							.getDocument().getLength());
 					jTextPane1_log.setAutoscrolls(true);
+					
+					SendMail(BuyerID, BuyerEmail);
+					
+					}else {
+						db.updateFeedbackRecord(OrderId, "proxy-true");
+						jTextPane1_log.append("Feedback for (" + i + ") "
+								+ BuyerID + " fail... [expired:"
+								+ daysInBetween + "days]\n");
+						
+					}
+					
+			
 
 				} catch (Exception ex1) {
 					/*
@@ -307,17 +499,19 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 					 * if order date is old than 20 days then it's late to
 					 * update the feedback
 					 */
-					if (daysInBetween >= 20) {
+					if (daysInBetween >= 15) {
 						/*
 						 * do an proxy update to database so it won't be invoked
 						 * later for updates
 						 */
 						db.updateFeedbackRecord(OrderId, "proxy-true");
 						jTextPane1_log.append("Feedback for (" + i + ") "
-								+ BuyerID + " fail... [expired:"+daysInBetween+ "days]\n");
+								+ BuyerID + " fail... [expired:"
+								+ daysInBetween + "days]\n");
 					} else {
 						jTextPane1_log.append("Feedback for (" + i + ") "
-								+ BuyerID + " fail... [unknow:"+daysInBetween+"days]\n");
+								+ BuyerID + " fail... [unknow:" + daysInBetween
+								+ "days]\n");
 					}
 					/*
 					 * Make sure the new text is visible, even if there was a
@@ -334,14 +528,14 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				}
 
 			}
-			/*Show dialog box when update feedback is finished */
+			/* Show dialog box when update feedback is finished */
 			JOptionPane.showMessageDialog(null, "Update Feedback done !!",
 					"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
 
 		} catch (Exception ex) {
 			String msg = ex.getClass().getName() + " : " + ex.getMessage();
 			((EmbvidFrame) this.getParent()).showErrorMessage(msg);
-		}finally {
+		} finally {
 			this.setCursor(Cursor.getDefaultCursor());
 		}
 
@@ -349,6 +543,9 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 
 	void btnDialogSendFeedback_actionPerformed(ActionEvent e) {
 		/* Start the thread to process the feedback */
+		/* test mail*/
+		//SendMail("invincible.arpits, anand.krs", "invincible.arpit@gmail.com;anand.krs@gmail.com");
+		
 		new Thread() {
 			public void run() {
 				System.out.println("Start Update Feedback thread");
@@ -411,8 +608,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			try {
 				st = con.createStatement();
 
-				String sql = "UPDATE test1db.EMBVID_ORDERS5 SET Feedback='"
-						+ updateStr + "' WHERE EMBVID_ORDERS5.OrderID='"
+				String sql = "UPDATE embvid.ORDERS SET Feedback='"
+						+ updateStr + "' WHERE ORDERS.OrderID='"
 						+ orderID + "'";
 
 				st.executeUpdate(sql);
@@ -449,7 +646,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				st = con.createStatement();
 
 				String sql = "SELECT ID, OrderDate, OrderID, BuyerID, BuyerEmail "
-						+ "FROM test1db.EMBVID_ORDERS5 "
+						+ "FROM embvid.ORDERS "
 						+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";
 
 				rs = st.executeQuery(sql);
@@ -461,7 +658,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				totalRecord = 0;
 				while (rs.next()) {
 					try {
-						
+
 						lstOrderdate[totalRecord] = rs.getLong("OrderDate");
 						lstBuyerId.add(rs.getString("BuyerID"));
 						lstBuyerEmail.add(rs.getString("BuyerEmail"));
