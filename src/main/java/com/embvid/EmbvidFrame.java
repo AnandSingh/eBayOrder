@@ -1040,8 +1040,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 					+ "WHERE OrderID = '"
 					+ orderInfo.OrderId
 					+ "' "
-					+ "AND OrderDate = "
-					+ orderInfo.OrderDate + ")";
+					+ "AND OrderDate = " + orderInfo.OrderDate + ")";
 
 			db_st.executeUpdate(sql);
 			db_st.close();
@@ -1049,7 +1048,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 		} catch (SQLException ex) {
 
 			System.out.println("Exception :\n" + ex.getMessage());
-			JOptionPane.showMessageDialog(null, "ex.getMessage()",
+			JOptionPane.showMessageDialog(null, ex.getMessage(),
 					"Exception: " + "", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
@@ -1060,7 +1059,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			public boolean include(Entry entry) {
 				String orderstatus = (String) entry.getValue(0);
 				String payPalID = (String) entry.getValue(1);
-				if (orderstatus.contains("INCOMPLETE") == true || payPalID.contains("null") == true) {
+				if (orderstatus.contains("INCOMPLETE") == true
+						|| payPalID.contains("null") == true) {
 					// Returning false indicates this row would not be
 					// shown.
 					return false;
@@ -1220,6 +1220,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 	void GetOrder() {
 
 		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		long lastOrderDate = 0;
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
@@ -1361,8 +1362,16 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 						}
 
 						/*** Store Order Date ***/
-						orderInfo.setOrderDate(transaction.getCreatedDate()
-								.getTimeInMillis());
+						long orderDate = transaction.getCreatedDate()
+								.getTimeInMillis();
+						orderInfo.setOrderDate(orderDate);
+						
+						/*Store last order date*/
+						if (orderDate > lastOrderDate)
+						{
+							lastOrderDate = orderDate;
+						}
+												
 
 						/*** Store Paisa Pay ID ***/
 						ExternalTransactionType[] extTrancType = order
@@ -1445,7 +1454,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 						System.out
 								.println("---------------------------------------");
 					}
-					updateDatabase(orderInfo);
+					//updateDatabase(orderInfo);
 				}
 			} else {
 				System.out
@@ -1457,10 +1466,9 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 			System.out.println("---------------------------------------");
 
 			// Store the last time fetch time
-			System.out.println("Update Last Fetch time: "
-					+ to.getTimeInMillis());
-			prefs.putLong("LAST_ORDER_TIME", to.getTimeInMillis());
-
+						System.out.println("Update Last Fetch time: "
+								+ lastOrderDate);
+						prefs.putLong("LAST_ORDER_TIME", lastOrderDate);
 			UpdateShippedOrder();
 
 		} catch (Exception ex) {
@@ -1889,8 +1897,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 	/* Function to handle the current sales when user press "sales" button */
 	void btnSales_actionPerformed(ActionEvent e) {
-		EmbvidSales dlg = new EmbvidSales(this,
-				"eBay SDK for Java - Sales", true);
+		EmbvidSales dlg = new EmbvidSales(this, "eBay SDK for Java - Sales",
+				true);
 		GuiUtil.CenterComponent(dlg);
 		dlg.setVisible(true);
 	}
