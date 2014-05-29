@@ -40,7 +40,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -163,16 +162,24 @@ public class EmbvidSalesGraph extends JDialog {
 
 	private void jbInit() throws Exception {
 
-		
 		int totalRecord = 0;
 		// List<Double> scores = new ArrayList<Double>();
 		Random random = new Random();
 
 		new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 		Calendar to = GregorianCalendar.getInstance();
-		long currentTime = to.getTimeInMillis() - (60 * 24 * 60 * 60 * 10000);
+		// long currentTime = to.getTimeInMillis();
+		DateFormat formatter = new SimpleDateFormat("dd MM yy");
 
-		System.out.println(currentTime);
+		Calendar from = (GregorianCalendar) to.clone();
+		from.add(Calendar.DAY_OF_YEAR, -60);
+		// from.se, month, date)
+		from.clear(Calendar.HOUR);
+		from.clear(Calendar.HOUR_OF_DAY);
+		from.clear(Calendar.MINUTE);// = 0;//, -);
+		from.clear(Calendar.SECOND);// , 0);
+		System.out.println("Data Frome: " + from.getTimeInMillis() + " ("
+				+ formatter.format(from.getTimeInMillis()) + ")");
 
 		Statement st = null;
 		ResultSet rs = null;
@@ -195,7 +202,9 @@ public class EmbvidSalesGraph extends JDialog {
 					db_pass);
 			st = con.createStatement();
 
-			String sql = "SELECT OrderDate, Price FROM embvid.ORDERS WHERE OrderDate>=1401064036272 AND OrderStatus='COMPLETE'";
+			String sql = "SELECT OrderDate, Price FROM embvid.ORDERS WHERE OrderDate>="
+					+ from.getTimeInMillis() + " AND OrderStatus='COMPLETE'";
+			System.out.println(sql);
 
 			rs = st.executeQuery(sql);
 
@@ -207,6 +216,7 @@ public class EmbvidSalesGraph extends JDialog {
 
 					lstOrderdate[totalRecord] = rs.getLong("OrderDate");
 					lstPrice[totalRecord] = rs.getFloat("Price");
+					System.out.println(lstOrderdate[totalRecord] +": ("+formatter.format(lstOrderdate[totalRecord])+" - "+lstPrice[totalRecord]);
 					totalRecord++;
 				} catch (Exception ex) {
 					JOptionPane.showMessageDialog(null, ex.getMessage(),
@@ -253,8 +263,8 @@ public class EmbvidSalesGraph extends JDialog {
 			}
 		}
 
-		int maxDataPoints = 30;
-		int maxScore = 166;
+		// int maxDataPoints = 30;
+		// int maxScore = 166;
 		for (int i = 0; i < totalRecord; i++) {
 			scores.add((double) lstPrice[i]);
 			// scores.add((double) i);
@@ -338,7 +348,7 @@ public class EmbvidSalesGraph extends JDialog {
 			}
 			g2.drawLine(x0, y0, x1, y1);
 		}
-		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+		DateFormat formatter = new SimpleDateFormat("dd MM yy");
 		// and for x axis
 		for (int i = 0; i < scores.size(); i++) {
 			if (scores.size() > 1) {
@@ -352,7 +362,7 @@ public class EmbvidSalesGraph extends JDialog {
 					g2.drawLine(x0, getHeight() - padding - labelPadding - 1
 							- pointWidth, x1, padding);
 					g2.setColor(Color.BLACK);
-					
+
 					String xLabel = formatter.format(lstOrderdate[i]) + "";
 					FontMetrics metrics = g2.getFontMetrics();
 					int labelWidth = metrics.stringWidth(xLabel);
