@@ -237,6 +237,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 		String smtp_port = null;
 		String to_email = null;
 		String emailBody = null;
+		String emailSubject = null;
+		
 
 		try {
 
@@ -245,7 +247,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			Node config = XmlUtil.getChildByName(doc, "Configuration");
 			if (config == null) {
 				JOptionPane.showMessageDialog(null, "No Config.xml file found",
-						"InfoBox: ", JOptionPane.INFORMATION_MESSAGE);
+						"InfoBox: ", JOptionPane.
+						INFORMATION_MESSAGE);
 				return;
 			}
 
@@ -255,6 +258,11 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 
 			smtp_host = XmlUtil.getChildString(config, "YOUR_SMTP_HOST").trim();
 			smtp_port = XmlUtil.getChildString(config, "YOUR_SMTP_PORT").trim();
+			
+			emailSubject = XmlUtil.getChildString(config, "EMAIL_SUBJECT").trim();
+			
+			emailBody = XmlUtil.getChildString(config, "EMAIL_BODY").trim();
+			
 			//to_email = XmlUtil.getChildString(config, "TO_EMAIL").trim();
 			to_email = BuyerEmail;
 			//emailBody = XmlUtil.getChildString(config, "EMAIL_BODY").trim();
@@ -288,9 +296,7 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			for (int i = 0; i < to_email_arr.length; i++) {
 				adress[i] = new InternetAddress(to_email_arr[i]);
 			}
-			// adress[0] = new InternetAddress("admin@embvid.com");
-			// adress[1] = new InternetAddress("invincible.arpit@gmail.com");
-			// adress[2] = new InternetAddress("anand.krs@gmail.com");
+
 
 			MimeMessage message = new MimeMessage(session);
 			message.setFrom(new InternetAddress(email));
@@ -298,29 +304,13 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			// message.setRecipients(arg0,
 			// arg1)setRecipients(Message.RecipientType.TO,
 			// InternetAddress.parse(""));
-			message.setSubject("embvid:: Update for ebay Order");
+			message.setSubject(emailSubject);
 
 			// Create the message part
 			BodyPart messageBodyPart = new MimeBodyPart();
 			//emailBody = "<h1>Sample</h1><p>This is a sample HTML part</p>";
 			
-			emailBody = ""+
-			"<br><br>Greetings from </font></font><font face=\"arial, sans-serif\"><font>Embvid</font></font><font face=\"arial, sans-serif\"><font>.<br>"+
-			"<br>Hope "+
-			"you are doing great.<br><br>Thank you for purchasing from us.</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>To help you keep track of your purchases, we're sending you this order update. You can also view the latest order updated and details in </font></font><font face=\"arial, sans-serif\"><font><font><a href=\"https://signin.ebay.in/ws/eBayISAPI.dll?SignIn&UsingSSL=1&pUserId=&co_partnerId=2&siteid=203&ru=http%3A%2F%2Fmy.ebay.in%2Fws%2FeBayISAPI.dll%3FMyEbayBeta%26MyEbay%3D%26gbh%3D1%26guest%3D1&pageType=3984\" target=\"_blank\">"+
-			"My Ebay</a>.</font></font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>Recent "+
-			"updates to your order: </font></font><font face=\"arial, sans-serif\"><font>Your "+
-			"order </font></font><font face=\"arial, sans-serif\"><font>is "+
-			"marked as shipped</font></font><font face=\"arial, sans-serif\"><font>.<br></font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>For "+
-			"any queries, feel free to contact us.</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font>Please leave an positive for us, we too have left an positive feedback for you.</font></font></p>"+
-			"<p style=\"margin-bottom:0.2in\"><a href=\"http://feedback.ebay.in/ws/eBayISAPI.dll?LeaveFeedbackShow&amp;useridto=embvid&amp;item=%3Cxxxxxxxxxxx%3E&amp;transactid=%3Cxxxxxxxxxxxx%3E&amp;useridfrom=%3Cuser-id%3E\" target=\"_blank\"><font face=\"arial, sans-serif\"><font><b>Leave Feedback</b></font></font></a></p>"+
-			"<p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font></font></font><font face=\"arial, sans-serif\"><font>Thanks</font></font><font face=\"arial, sans-serif\"><font><br>Team"+
-			"</font></font><font face=\"arial, sans-serif\"><font>Embvid</font></font></p><p style=\"margin-bottom:0.2in\"><font face=\"arial, sans-serif\"><font><a href=\"http://www.embvid.com/\" target=\"_blank\">www.</a></font></font><a href=\"http://www.embvid.com/\" target=\"_blank\"><font face=\"arial, sans-serif\"><font>embvid.com</font></font></a><font face=\"arial, sans-serif\"><font><br>"+
-			"Like us @ Facebook : <a href=\"http://www.facebook.com/embvid\" target=\"_blank\">www.facebook.com/</a></font></font><a href=\"http://www.facebook.com/embvid.com\" target=\"_blank\"><font face=\"arial, sans-serif\"><font>embvid</font></font></a><font face=\"arial, sans-serif\"><font><br>"+
-			"</font></font></p><p style=\"margin-bottom:0.2in\"></p><p style=\"margin-bottom:0.2in\"></p><table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"600\"><tbody><tr><td>____________________________________________________________________________________<br><br>"+
-			"<b>This is a <span>system</span> <span>generated</span> <span>mail</span>. Please do not reply to this email ID. If<br>you have a query or need any clarification you may: <br>(1) Call our 24-hour Customer Care or<br>"+
-			"(2) Email Us <a href=\"mailto:info@embvid.com\" target=\"_blank\">info@embvid.com</a> </b> <br>____________________________________________________________________________________</td>";
-
+			
 			
 			// Fill the message
 			//messageBodyPart.setText(emailBody);
@@ -328,9 +318,10 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			Multipart multipart = new MimeMultipart();
 			
 			messageBodyPart
-			.setText("Hi "+BuyerId+",");
+			.setText("Dear "+BuyerId+",");
 			// Set text message part
-			
+
+			System.out.println(emailBody);
 			
 			MimeBodyPart htmlPart = new MimeBodyPart();
 			htmlPart.setContent(emailBody, "text/html");
@@ -394,6 +385,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			if (feedbackTxt.length() == 0) {
 				throw new SdkException("Please enter Feedback Text Msg.");
 			}
+
+			
 
 			BuyerRecord db = new BuyerRecord();
 
@@ -571,9 +564,11 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 	class BuyerRecord {
 		Connection con;
 
-		String db_url;
-		String db_user;
-		String db_pass;
+		String db_url = null;
+		String db_user = null;
+		String db_pass = null;
+		String db_name = null;
+		String db_table_name = null;
 
 		long[] lstOrderdate;
 		ArrayList<String> lstBuyerId;
@@ -608,8 +603,8 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 			try {
 				st = con.createStatement();
 
-				String sql = "UPDATE embvid.ORDERS SET Feedback='"
-						+ updateStr + "' WHERE ORDERS.OrderID='"
+				String sql = "UPDATE "+db_name+"."+db_table_name+" SET Feedback='"
+						+ updateStr + "' WHERE "+db_table_name+".OrderID='"
 						+ orderID + "'";
 
 				st.executeUpdate(sql);
@@ -641,13 +636,18 @@ public class EmbvidSendFeedbackDialog extends JDialog {
 				db_url = XmlUtil.getChildString(config, "DB_URL").trim();
 				db_user = XmlUtil.getChildString(config, "DB_USER").trim();
 				db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
+				db_name = XmlUtil.getChildString(config, "DB_NAME").trim();
+				db_table_name = XmlUtil.getChildString(config, "DB_TABLE_NAME").trim();
 
 				con = DriverManager.getConnection(db_url, db_user, db_pass);
 				st = con.createStatement();
 
+				/*String sql = "SELECT ID, OrderDate, OrderID, BuyerID, BuyerEmail "
+						+ "FROM "+db_name+"."+db_table_name+" "
+						+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";*/
 				String sql = "SELECT ID, OrderDate, OrderID, BuyerID, BuyerEmail "
-						+ "FROM embvid.ORDERS "
-						+ "WHERE ShippingStatus='SHIPPED' AND Feedback='false'";
+						+ "FROM "+db_name+"."+db_table_name+" "
+						+ "WHERE ShippingStatus='SHIPPED' AND Feedback='proxy-true'";
 
 				rs = st.executeQuery(sql);
 

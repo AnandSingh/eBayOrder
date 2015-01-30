@@ -284,6 +284,8 @@ class dbRecord {
 	String db_url;
 	String db_user;
 	String db_pass;
+	String db_name;
+	String db_table_name;
 	
 	private boolean db_view = false;
 
@@ -307,6 +309,8 @@ class dbRecord {
 			db_url = XmlUtil.getChildString(config, "DB_URL").trim();
 			db_user = XmlUtil.getChildString(config, "DB_USER").trim();
 			db_pass = XmlUtil.getChildString(config, "DB_PASS").trim();
+			db_name = XmlUtil.getChildString(config, "DB_NAME").trim();
+			db_table_name = XmlUtil.getChildString(config, "DB_TABLE_NAME").trim();
 
 			con = DriverManager.getConnection(db_url, db_user, db_pass);
 			st = con.createStatement();
@@ -317,7 +321,7 @@ class dbRecord {
 			 * else show all the data base */
 			if (view == true) {
 				rs = st.executeQuery("SELECT * "
-						+ "FROM embvid.ORDERS "
+						+ "FROM "+db_name+"."+db_table_name+" "
 						+ "WHERE OrderStatus = 'COMPLETE' "
 						+ "AND ShippingStatus = 'NOT-SHIPPED'");
 				maxRow = 0;
@@ -330,8 +334,8 @@ class dbRecord {
 				}
 			} else {
 
-				rs = st.executeQuery("SELECT * FROM embvid.ORDERS");
-				rs = st.executeQuery("SELECT COUNT(*) FROM embvid.ORDERS");
+				rs = st.executeQuery("SELECT * FROM "+db_name+"."+db_table_name);
+				rs = st.executeQuery("SELECT COUNT(*) FROM "+db_name+"."+db_table_name);
 				rs.next();
 				maxRow = rs.getInt(1);
 			}
@@ -420,7 +424,7 @@ class dbRecord {
 
 			Statement st = con.createStatement();
 
-			String sql = "SELECT" + selCol + "FROM embvid.ORDERS "
+			String sql = "SELECT" + selCol + "FROM "+db_name+"."+db_table_name+" "
 					+ "WHERE ID=" + selRow;
 
 			ResultSet rs = st.executeQuery(sql);

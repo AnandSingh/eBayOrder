@@ -39,15 +39,11 @@
 </FeedbackText>
 
 <!-- DATABASE CONNECTION -->
-<DB_URL>
-jdbc:mysql://localhost:3306/test1db
-</DB_URL>
-<DB_USER>
-test111
-</DB_USER>
-<DB_PASS>
-test222
-</DB_PASS>
+<DB_URL>jdbc:mysql://localhost:3306/test1db</DB_URL>
+<DB_USER>test111</DB_USER>
+<DB_PASS>test222</DB_PASS>
+<DB_PASS>PASSWORD</DB_PASS>
+<DB_TABLE_NAME>SALES_ORDER</DB_TABLE_NAME>
 <!-- EMAIL CONFIGRATION -->
 
 <YOUR_EMAIL>Place your email ID</YOUR_EMAIL>
@@ -55,5 +51,10 @@ test222
 <YOUR_SMTP_HOST>Place your smtp host like mail.google.com</YOUR_SMTP_HOST>
 <YOUR_SMTP_PORT>25</YOUR_SMTP_PORT>
 <TO_EMAIL>Place the email of recipeient </TO_EMAIL>
+
+<EMAIL_FOR_BUYER>PLACE YOUR EMAIL ID</EMAIL_FOR_BUYER>
+<EMAIL_BODY><![CDATA[
+<PLACE YOUR HTML BASED EMAIL BODY>
+]]></EMAIL_BODY>
 
 </Configuration>
