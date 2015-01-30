@@ -1458,7 +1458,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 						System.out
 								.println("---------------------------------------");
 					}
-					//updateDatabase(orderInfo);
+					updateDatabase(orderInfo);
 				}
 			} else {
 				System.out
@@ -1634,7 +1634,7 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 				{ "Bihar", "BR" }, { "Chhattisgarh", "CG" }, { "Goa", "GA" },
 				{ "Gujarat", "GJ" }, { "Haryana", "HR" },
 				{ "Himachal Pradesh", "HP" }, { "Jammu & Kashmir", "JK" },
-				{ "Jharkhand", "JR" }, { "Karnataka", "KA" },
+				{ "Jharkhand", "JH" }, { "Karnataka", "KA" },
 				{ "Kerala", "KL" }, { "Madhya Pradesh", "MP" },
 				{ "Maharashtra", "MH" }, { "Manipur", "MN" },
 				{ "Meghalaya", "ML" }, { "Mizoram", "MZ" },
@@ -1901,8 +1901,8 @@ public class EmbvidFrame extends JFrame implements KeyListener,
 
 	/* Function to handle the current sales when user press "sales" button */
 	void btnSales_actionPerformed(ActionEvent e) {
-		EmbvidSales dlg = new EmbvidSales(this, "eBay SDK for Java - Sales",
-				true);
+		EmbvidSales dlg = new EmbvidSales(this,
+				"eBay SDK for Java - Sales", true);
 		GuiUtil.CenterComponent(dlg);
 		dlg.setVisible(true);
 	}
